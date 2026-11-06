@@ -108,22 +108,22 @@ INSERT INTO shops (name,description,address,phone,owner_id) VALUES
 
 INSERT INTO categories (name) VALUES ('Starters'),('Main Course'),('Biryani & Rice'),('Breads'),('Desserts'),('Drinks');
 
-INSERT INTO foods (category_id,shop_id,name,description,price,is_veg) VALUES
-(1,(SELECT id FROM shops WHERE name='Durgapur Kitchen'),'Paneer Tikka','Char-grilled cottage cheese with mint chutney',220.00,1),
-(1,(SELECT id FROM shops WHERE name='Durgapur Kitchen'),'Chicken 65','Crispy spiced chicken, curry leaf tempering',240.00,0),
-(1,(SELECT id FROM shops WHERE name='Durgapur Kitchen'),'Veg Spring Roll','Crunchy rolls stuffed with seasoned vegetables',140.00,1),
-(2,(SELECT id FROM shops WHERE name='Durgapur Kitchen'),'Butter Chicken','Creamy tomato gravy, tandoori chicken',320.00,0),
-(2,(SELECT id FROM shops WHERE name='Durgapur Kitchen'),'Dal Makhani','Slow-cooked black lentils finished with butter',210.00,1),
-(2,(SELECT id FROM shops WHERE name='Durgapur Kitchen'),'Kosha Mangsho','Bengali-style slow-cooked mutton curry',380.00,0),
-(2,(SELECT id FROM shops WHERE name='Durgapur Kitchen'),'Shahi Paneer','Paneer in a rich cashew and cream gravy',260.00,1),
-(3,(SELECT id FROM shops WHERE name='Durgapur Kitchen'),'Kolkata Chicken Biryani','Aromatic basmati with chicken, potato and egg',290.00,0),
-(3,(SELECT id FROM shops WHERE name='Durgapur Kitchen'),'Veg Pulao','Fragrant rice with seasonal vegetables',180.00,1),
-(3,(SELECT id FROM shops WHERE name='Durgapur Kitchen'),'Jeera Rice','Basmati rice tempered with cumin',120.00,1),
-(4,(SELECT id FROM shops WHERE name='Durgapur Kitchen'),'Butter Naan','Soft tandoor-baked bread with butter',45.00,1),
-(4,(SELECT id FROM shops WHERE name='Durgapur Kitchen'),'Luchi (4 pcs)','Puffed fried bread, Bengali style',70.00,1),
-(5,(SELECT id FROM shops WHERE name='Durgapur Kitchen'),'Rasgulla (2 pcs)','Spongy cottage cheese balls in sugar syrup',60.00,1),
-(5,(SELECT id FROM shops WHERE name='Durgapur Kitchen'),'Gulab Jamun (2 pcs)','Warm milk dumplings in cardamom syrup',70.00,1),
-(5,(SELECT id FROM shops WHERE name='Durgapur Kitchen'),'Mishti Doi','Sweetened set yoghurt, clay-pot style',65.00,1),
-(6,(SELECT id FROM shops WHERE name='Durgapur Kitchen'),'Masala Chai','Ginger and cardamom tea',30.00,1),
-(6,(SELECT id FROM shops WHERE name='Durgapur Kitchen'),'Sweet Lassi','Thick chilled yoghurt drink',80.00,1),
-(6,(SELECT id FROM shops WHERE name='Durgapur Kitchen'),'Fresh Lime Soda','Sweet or salted',60.00,1);
+INSERT INTO foods (category_id,shop_id,name,description,price,image,is_veg) VALUES
+(1,(SELECT id FROM shops WHERE name='Durgapur Kitchen'),'Paneer Tikka','Char-grilled cottage cheese with mint chutney',220.00,'paneer-tikka.jpg',1),
+(1,(SELECT id FROM shops WHERE name='Durgapur Kitchen'),'Chicken 65','Crispy spiced chicken, curry leaf tempering',240.00,'chicken-65.jpg',0),
+(1,(SELECT id FROM shops WHERE name='Durgapur Kitchen'),'Veg Spring Roll','Crunchy rolls stuffed with seasoned vegetables',140.00,'veg-spring-roll.jpg',1),
+(2,(SELECT id FROM shops WHERE name='Durgapur Kitchen'),'Butter Chicken','Creamy tomato gravy, tandoori chicken',320.00,'butter-chicken.jpg',0),
+(2,(SELECT id FROM shops WHERE name='Durgapur Kitchen'),'Dal Makhani','Slow-cooked black lentils finished with butter',210.00,'dal-makhani.jpg',1),
+(2,(SELECT id FROM shops WHERE name='Durgapur Kitchen'),'Kosha Mangsho','Bengali-style slow-cooked mutton curry',380.00,'kosha-mangsho.jpg',0),
+(2,(SELECT id FROM shops WHERE name='Durgapur Kitchen'),'Shahi Paneer','Paneer in a rich cashew and cream gravy',260.00,'shahi-paneer.jpg',1),
+(3,(SELECT id FROM shops WHERE name='Durgapur Kitchen'),'Kolkata Chicken Biryani','Aromatic basmati with chicken, potato and egg',290.00,'kolkata-biryani.jpg',0),
+(3,(SELECT id FROM shops WHERE name='Durgapur Kitchen'),'Veg Pulao','Fragrant rice with seasonal vegetables',180.00,'veg-pulao.jpg',1),
+(3,(SELECT id FROM shops WHERE name='Durgapur Kitchen'),'Jeera Rice','Basmati rice tempered with cumin',120.00,'jeera-rice.jpg',1),
+(4,(SELECT id FROM shops WHERE name='Durgapur Kitchen'),'Butter Naan','Soft tandoor-baked bread with butter',45.00,'butter-naan.jpg',1),
+(4,(SELECT id FROM shops WHERE name='Durgapur Kitchen'),'Luchi (4 pcs)','Puffed fried bread, Bengali style',70.00,'luchi.jpg',1),
+(5,(SELECT id FROM shops WHERE name='Durgapur Kitchen'),'Rasgulla (2 pcs)','Spongy cottage cheese balls in sugar syrup',60.00,'rasgulla.jpg',1),
+(5,(SELECT id FROM shops WHERE name='Durgapur Kitchen'),'Gulab Jamun (2 pcs)','Warm milk dumplings in cardamom syrup',70.00,'gulab-jamun.jpg',1),
+(5,(SELECT id FROM shops WHERE name='Durgapur Kitchen'),'Mishti Doi','Sweetened set yoghurt, clay-pot style',65.00,'mishti-doi.jpg',1),
+(6,(SELECT id FROM shops WHERE name='Durgapur Kitchen'),'Masala Chai','Ginger and cardamom tea',30.00,'masala-chai.jpg',1),
+(6,(SELECT id FROM shops WHERE name='Durgapur Kitchen'),'Sweet Lassi','Thick chilled yoghurt drink',80.00,'sweet-lassi.jpg',1),
+(6,(SELECT id FROM shops WHERE name='Durgapur Kitchen'),'Fresh Lime Soda','Sweet or salted',60.00,'fresh-lime-soda.jpg',1);
