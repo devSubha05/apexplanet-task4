@@ -22,6 +22,7 @@
           <li class="nav-item"><a class="nav-link" href="<?= url('admin/categories.php') ?>">Categories</a></li>
           <li class="nav-item"><a class="nav-link" href="<?= url('admin/orders.php') ?>">Orders</a></li>
           <li class="nav-item"><a class="nav-link" href="<?= url('admin/users.php') ?>">Users</a></li>
+          <li class="nav-item"><a class="nav-link text-warning" href="<?= url('shop/index.php') ?>"><i class="bi bi-shop me-1"></i>Shop Portal</a></li>
           <li class="nav-item"><a class="nav-link" href="<?= url('index.php') ?>">View site</a></li>
         <?php elseif ($isShopArea): ?>
           <li class="nav-item"><a class="nav-link" href="<?= url('shop/index.php') ?>"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a></li>
@@ -30,11 +31,12 @@
           <li class="nav-item"><a class="nav-link" href="<?= url('index.php') ?>" target="_blank"><i class="bi bi-box-arrow-up-right me-1"></i>View Site</a></li>
         <?php else: ?>
           <li class="nav-item"><a class="nav-link" href="<?= url('index.php') ?>">Menu</a></li>
+          <li class="nav-item"><a class="nav-link" href="<?= url('shops.php') ?>"><i class="bi bi-shop me-1"></i>Shops</a></li>
           <?php if ($me): ?>
             <li class="nav-item"><a class="nav-link" href="<?= url('dashboard.php') ?>">Dashboard</a></li>
             <li class="nav-item"><a class="nav-link" href="<?= url('orders.php') ?>">My orders</a></li>
             <?php if ($me['role'] === 'admin'): ?><li class="nav-item"><a class="nav-link" href="<?= url('admin/index.php') ?>">Admin panel</a></li><?php endif; ?>
-            <?php if ($me['role'] === 'shop_owner'): ?><li class="nav-item"><a class="nav-link text-warning fw-semibold" href="<?= url('shop/index.php') ?>"><i class="bi bi-shop me-1"></i>My Shop</a></li><?php endif; ?>
+            <?php if ($me['role'] === 'shop_owner' || $me['role'] === 'admin'): ?><li class="nav-item"><a class="nav-link text-warning fw-semibold" href="<?= url('shop/index.php') ?>"><i class="bi bi-shop me-1"></i><?= $me['role'] === 'admin' ? 'Shop Portal' : 'My Shop' ?></a></li><?php endif; ?>
           <?php endif; ?>
         <?php endif; ?>
       </ul>

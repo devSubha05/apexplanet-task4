@@ -28,12 +28,25 @@ Real-World Full Stack Project (ApexPlanet Internship, Task 4). Built with **PHP 
 - Order prices are read from the database at checkout, never from the browser
 - Reset tokens stored as SHA-256 hashes, expire in 30 minutes, single use
 
-## Setup (XAMPP / WAMP)
-1. Copy this folder to `htdocs/rasoi`.
-2. Start Apache and MySQL.
-3. Open phpMyAdmin and import `database.sql` (creates the `rasoi_express` database with sample data).
-4. Check `config/config.php` (DB user/password, `BASE_URL` = `/rasoi`).
-5. Visit `http://localhost/rasoi/`.
+## Setup Instructions
+
+### Method A: PHP Built-in Server (Quickest)
+1. Ensure MySQL / MariaDB is running and import `database.sql`:
+   ```bash
+   mysql -u root -p < database.sql
+   ```
+2. Start the local server with the included router:
+   ```bash
+   php -S localhost:8000 router.php
+   ```
+3. Open your browser and visit: **`http://localhost:8000/`** (do not omit port `:8000`).
+
+### Method B: XAMPP / WAMP
+1. Copy or symlink this project folder into `htdocs/rasoi` (or `htdocs/apexplanet-task4`).
+2. Start Apache and MySQL in XAMPP.
+3. Open phpMyAdmin and import `database.sql` (creates `rasoi_express` with all users, shops, and dishes).
+4. Visit **`http://localhost/rasoi/`** (or **`http://localhost/apexplanet-task4/`**).
+   *(Note: Visiting bare `http://localhost/` will return a 404 if the project is in a subfolder or outside `htdocs`)*.
 
 The pages load Bootstrap, Bootstrap Icons and Chart.js from a CDN, so an internet connection is needed.
 

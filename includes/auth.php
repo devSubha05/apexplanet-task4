@@ -52,13 +52,23 @@ function require_admin(): array {
 }
 function require_shop_owner(): array {
     $u = require_login();
-    if ($u['role'] !== 'shop_owner') { http_response_code(403); exit('403 - Shop owners only.'); }
+    if ($u['role'] !== 'shop_owner' && $u['role'] !== 'admin') { http_response_code(403); exit('403 - Shop owners and admins only.'); }
     return $u;
 }
 function owner_shop(int $uid): ?array {
     $s = db()->prepare('SELECT * FROM shops WHERE owner_id=?');
     $s->execute([$uid]);
-    return $s->fetch() ?: null;
+    $shop = $s->fetch();
+    if (!$shop) {
+        // If user is admin and has no shop of their own, default to the first available shop
+        $u = current_user();
+        if ($u && $u['role'] === 'admin') {
+            $first = db()->query('SELECT * FROM shops ORDER BY id ASC LIMIT 1')->fetch();
+            if ($first) return $first;
+        }
+        return null;
+    }
+    return $shop;
 }
 function login_user(array $row): void {
     session_regenerate_id(true);
