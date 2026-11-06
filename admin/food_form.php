@@ -3,7 +3,7 @@ require_once __DIR__ . '/../includes/auth.php';
 require_admin();
 $adminArea = true;
 $id = (int)($_GET['id'] ?? ($_POST['id'] ?? 0));
-$food = ['name' => '', 'description' => '', 'price' => '', 'category_id' => '', 'is_veg' => 1, 'is_available' => 1, 'image' => null];
+$food = ['name' => '', 'description' => '', 'price' => '', 'category_id' => '', 'shop_id' => null, 'is_veg' => 1, 'is_available' => 1, 'image' => null];
 if ($id) {
     $s = db()->prepare('SELECT * FROM foods WHERE id=?'); $s->execute([$id]);
     $food = $s->fetch();
@@ -11,12 +11,14 @@ if ($id) {
 }
 $pageTitle = $id ? 'Edit dish' : 'Add dish';
 $cats = db()->query('SELECT * FROM categories ORDER BY name')->fetchAll();
+$shops = db()->query('SELECT id, name FROM shops ORDER BY name')->fetchAll();
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_check();
     $name = trim($_POST['name'] ?? ''); $desc = trim($_POST['description'] ?? '');
     $price = $_POST['price'] ?? ''; $catId = (int)($_POST['category_id'] ?? 0);
+    $shopId = !empty($_POST['shop_id']) ? (int)$_POST['shop_id'] : null;
     $isVeg = isset($_POST['is_veg']) ? 1 : 0; $avail = isset($_POST['is_available']) ? 1 : 0;
 
     if (mb_strlen($name) < 2 || mb_strlen($name) > 100) $errors[] = 'Name must be 2-100 characters.';
@@ -27,16 +29,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     [$img, $imgErr] = save_image($_FILES['image'] ?? ['error' => UPLOAD_ERR_NO_FILE], 'foods');
     if ($imgErr) $errors[] = $imgErr;
 
-    $food = array_merge($food, ['name' => $name, 'description' => $desc, 'price' => $price, 'category_id' => $catId, 'is_veg' => $isVeg, 'is_available' => $avail]);
+    $food = array_merge($food, ['name' => $name, 'description' => $desc, 'price' => $price, 'category_id' => $catId, 'shop_id' => $shopId, 'is_veg' => $isVeg, 'is_available' => $avail]);
     if (!$errors) {
         if ($id) {
             if ($img) { delete_image($food['image'], 'foods'); $food['image'] = $img; }
-            db()->prepare('UPDATE foods SET category_id=?,name=?,description=?,price=?,image=?,is_veg=?,is_available=? WHERE id=?')
-                ->execute([$catId, $name, $desc, $price, $food['image'], $isVeg, $avail, $id]);
+            db()->prepare('UPDATE foods SET category_id=?,shop_id=?,name=?,description=?,price=?,image=?,is_veg=?,is_available=? WHERE id=?')
+                ->execute([$catId, $shopId, $name, $desc, $price, $food['image'], $isVeg, $avail, $id]);
             flash('success', 'Dish updated.');
         } else {
-            db()->prepare('INSERT INTO foods (category_id,name,description,price,image,is_veg,is_available) VALUES (?,?,?,?,?,?,?)')
-                ->execute([$catId, $name, $desc, $price, $img, $isVeg, $avail]);
+            db()->prepare('INSERT INTO foods (category_id,shop_id,name,description,price,image,is_veg,is_available) VALUES (?,?,?,?,?,?,?,?,?)')
+                ->execute([$catId, $shopId, $name, $desc, $price, $img, $isVeg, $avail]);
             flash('success', 'Dish added.');
         }
         redirect('admin/foods.php');
@@ -50,8 +52,9 @@ require __DIR__ . '/../includes/header.php';
   <?= csrf_field() ?><input type="hidden" name="id" value="<?= $id ?>">
   <div class="mb-3"><label class="form-label" for="name">Name</label><input class="form-control" id="name" name="name" required minlength="2" maxlength="100" value="<?= e($food['name']) ?>"></div>
   <div class="row">
-    <div class="col-md-6 mb-3"><label class="form-label" for="category_id">Category</label><select class="form-select" id="category_id" name="category_id" required><option value="">Choose...</option><?php foreach ($cats as $c): ?><option value="<?= $c['id'] ?>" <?= (int)$food['category_id'] === (int)$c['id'] ? 'selected' : '' ?>><?= e($c['name']) ?></option><?php endforeach; ?></select></div>
-    <div class="col-md-6 mb-3"><label class="form-label" for="price">Price (₹)</label><input class="form-control" type="number" step="0.01" min="1" max="99999" id="price" name="price" required value="<?= e($food['price']) ?>"></div>
+    <div class="col-md-4 mb-3"><label class="form-label" for="category_id">Category</label><select class="form-select" id="category_id" name="category_id" required><option value="">Choose...</option><?php foreach ($cats as $c): ?><option value="<?= $c['id'] ?>" <?= (int)$food['category_id'] === (int)$c['id'] ? 'selected' : '' ?>><?= e($c['name']) ?></option><?php endforeach; ?></select></div>
+    <div class="col-md-4 mb-3"><label class="form-label" for="shop_id">Kitchen / Shop <small class="text-muted">(Optional)</small></label><select class="form-select" id="shop_id" name="shop_id"><option value="">In-House / None</option><?php foreach ($shops as $sh): ?><option value="<?= $sh['id'] ?>" <?= (int)($food['shop_id'] ?? 0) === (int)$sh['id'] ? 'selected' : '' ?>><?= e($sh['name']) ?></option><?php endforeach; ?></select></div>
+    <div class="col-md-4 mb-3"><label class="form-label" for="price">Price (₹)</label><input class="form-control" type="number" step="0.01" min="1" max="99999" id="price" name="price" required value="<?= e($food['price']) ?>"></div>
   </div>
   <div class="mb-3"><label class="form-label" for="description">Description</label><textarea class="form-control" id="description" name="description" rows="3" maxlength="500"><?= e($food['description']) ?></textarea></div>
   <div class="mb-3 d-flex align-items-center gap-3">

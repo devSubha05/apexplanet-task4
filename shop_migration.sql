@@ -32,6 +32,6 @@ INSERT INTO shops (name,description,address,phone,owner_id) VALUES
  (SELECT id FROM users WHERE email='shop@rasoi.test'));
 
 
--- Assign a few existing dishes to this shop
-UPDATE foods SET shop_id = (SELECT id FROM shops WHERE name='Durgapur Kitchen') WHERE id IN (1,2,3,4,5);
+-- Assign all existing dishes to this shop
+UPDATE foods SET shop_id = (SELECT id FROM shops WHERE name='Durgapur Kitchen');
 

@@ -28,7 +28,7 @@ if ($cat) { $where[] = 'f.category_id=?'; $args[] = $cat; }
 $w = implode(' AND ', $where);
 $c = db()->prepare("SELECT COUNT(*) FROM foods f WHERE $w"); $c->execute($args); $total = (int)$c->fetchColumn();
 $off = ($page - 1) * PER_PAGE;
-$s = db()->prepare("SELECT f.*, c.name cat FROM foods f JOIN categories c ON c.id=f.category_id WHERE $w ORDER BY f.id DESC LIMIT " . PER_PAGE . " OFFSET $off");
+$s = db()->prepare("SELECT f.*, c.name cat, s.name AS shop_name FROM foods f JOIN categories c ON c.id=f.category_id LEFT JOIN shops s ON s.id=f.shop_id WHERE $w ORDER BY f.id DESC LIMIT " . PER_PAGE . " OFFSET $off");
 $s->execute($args); $foods = $s->fetchAll();
 $cats = db()->query('SELECT * FROM categories ORDER BY name')->fetchAll();
 $qs = http_build_query(array_filter(['q' => $q, 'cat' => $cat ?: null])); $qs = $qs ? $qs . '&' : '';
@@ -48,7 +48,12 @@ require __DIR__ . '/../includes/header.php';
   <?php foreach ($foods as $f): ?>
     <tr>
       <td><img class="thumb" src="<?= e(food_img($f['image'])) ?>" alt=""></td>
-      <td><span class="<?= $f['is_veg'] ? 'veg-dot' : 'nonveg-dot' ?>"></span> <?= e($f['name']) ?></td>
+      <td>
+        <span class="<?= $f['is_veg'] ? 'veg-dot' : 'nonveg-dot' ?>"></span> <?= e($f['name']) ?>
+        <?php if (!empty($f['shop_name'])): ?>
+          <span class="badge bg-light text-dark border small ms-1"><i class="bi bi-shop text-danger me-1"></i><?= e($f['shop_name']) ?></span>
+        <?php endif; ?>
+      </td>
       <td><?= e($f['cat']) ?></td><td><?= money($f['price']) ?></td>
       <td><form method="post" class="d-inline"><?= csrf_field() ?><input type="hidden" name="action" value="toggle"><input type="hidden" name="id" value="<?= $f['id'] ?>">
         <button class="badge border-0 <?= $f['is_available'] ? 'bg-success' : 'bg-secondary' ?>" title="Click to toggle"><?= $f['is_available'] ? 'Available' : 'Hidden' ?></button></form></td>
