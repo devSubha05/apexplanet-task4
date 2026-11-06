@@ -42,6 +42,7 @@ The pages load Bootstrap, Bootstrap Icons and Chart.js from a CDN, so an interne
 |------|-------|----------|
 | Admin | admin@rasoi.test | Admin@123 |
 | Customer | demo@rasoi.test | User@123 |
+| Shop Owner | shop@rasoi.test | Shop@123 |
 
 ## Database
 Tables: `users`, `categories`, `foods`, `orders`, `order_items`, `password_resets`. Foreign keys with indexes on every lookup column (see `database.sql`).

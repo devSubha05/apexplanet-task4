@@ -17,6 +17,15 @@ require __DIR__ . '/includes/header.php';
   <img src="<?= e(avatar_url($me)) ?>" class="rounded-circle" width="64" height="64" alt="">
   <div><h2 class="mb-0">Hello, <?= e(explode(' ', $me['name'])[0]) ?></h2><span class="text-muted small"><?= e($me['email']) ?></span></div>
 </div>
+<?php if ($me['role'] === 'shop_owner'): ?>
+  <div class="alert alert-warning d-flex justify-content-between align-items-center mb-4 shadow-sm border-warning">
+    <div>
+      <i class="bi bi-shop me-2 fs-5"></i>
+      <strong>You are logged in as a Shop Owner.</strong> View and manage orders for your shop dishes.
+    </div>
+    <a href="<?= url('shop/index.php') ?>" class="btn btn-dark btn-sm"><i class="bi bi-arrow-right-circle me-1"></i> Open Shop Portal</a>
+  </div>
+<?php endif; ?>
 <div class="row g-3 mb-4">
   <div class="col-sm-4"><div class="card stat-card"><div class="card-body"><div class="text-muted small">Total orders</div><div class="num"><?= (int)$stats['orders'] ?></div></div></div></div>
   <div class="col-sm-4"><div class="card stat-card"><div class="card-body"><div class="text-muted small">Active orders</div><div class="num"><?= (int)$stats['active'] ?></div></div></div></div>

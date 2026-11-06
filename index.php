@@ -20,7 +20,7 @@ $cnt = db()->prepare("SELECT COUNT(*) FROM foods f WHERE $w"); $cnt->execute($ar
 $total = (int)$cnt->fetchColumn();
 
 $off = ($page - 1) * PER_PAGE;
-$st = db()->prepare("SELECT f.*, c.name AS cat FROM foods f JOIN categories c ON c.id=f.category_id WHERE $w ORDER BY $orderBy LIMIT " . PER_PAGE . " OFFSET $off");
+$st = db()->prepare("SELECT f.*, c.name AS cat, s.name AS shop_name FROM foods f JOIN categories c ON c.id=f.category_id LEFT JOIN shops s ON s.id=f.shop_id WHERE $w ORDER BY $orderBy LIMIT " . PER_PAGE . " OFFSET $off");
 $st->execute($args);
 $foods = $st->fetchAll();
 $cats = db()->query('SELECT * FROM categories ORDER BY name')->fetchAll();
@@ -69,7 +69,12 @@ require __DIR__ . '/includes/header.php';
     <div class="card food-card">
       <img src="<?= e(food_img($f['image'])) ?>" class="card-img-top" alt="<?= e($f['name']) ?>">
       <div class="card-body d-flex flex-column">
-        <div class="small text-muted"><?= e($f['cat']) ?></div>
+        <div class="d-flex justify-content-between align-items-center mb-1">
+          <span class="small text-muted"><?= e($f['cat']) ?></span>
+          <?php if (!empty($f['shop_name'])): ?>
+            <span class="badge bg-light text-dark border small" title="Sold by <?= e($f['shop_name']) ?>"><i class="bi bi-shop text-danger me-1"></i><?= e($f['shop_name']) ?></span>
+          <?php endif; ?>
+        </div>
         <h5 class="card-title mb-1"><span class="<?= $f['is_veg'] ? 'veg-dot' : 'nonveg-dot' ?>" title="<?= $f['is_veg'] ? 'Veg' : 'Non-veg' ?>"></span> <?= e($f['name']) ?></h5>
         <p class="card-text small text-muted flex-grow-1"><?= e($f['description']) ?></p>
         <div class="d-flex justify-content-between align-items-center">
