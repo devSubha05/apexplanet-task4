@@ -1,0 +1,27 @@
+:root{--rx-red:#c8102e;--rx-dark:#2b1b17;--rx-gold:#f7b32b;--rx-leaf:#2f6f4e;--rx-paper:#fff8ec}
+body{background:var(--rx-paper);color:var(--rx-dark);font-family:'Segoe UI',system-ui,-apple-system,sans-serif}
+.rx-nav{background:var(--rx-red)}
+.rx-nav .nav-link{color:rgba(255,255,255,.88)}
+.rx-nav .nav-link:hover{color:#fff}
+.rx-footer{background:var(--rx-dark);color:#e9d9c4}
+.btn-rx{background:var(--rx-red);border-color:var(--rx-red);color:#fff}
+.btn-rx:hover,.btn-rx:focus{background:#a30d25;border-color:#a30d25;color:#fff}
+.btn-outline-rx{border-color:var(--rx-red);color:var(--rx-red)}
+.btn-outline-rx:hover{background:var(--rx-red);color:#fff}
+.hero{background:linear-gradient(120deg,var(--rx-dark) 0%,#5a1a1a 100%);color:#fff;border-radius:1rem;padding:2.5rem 1.5rem}
+.hero h1{font-weight:800;letter-spacing:-.5px}
+.food-card{border:0;border-radius:.9rem;overflow:hidden;box-shadow:0 2px 10px rgba(43,27,23,.08);height:100%}
+.food-card img{height:170px;object-fit:cover}
+.veg-dot,.nonveg-dot{display:inline-block;width:14px;height:14px;border:2px solid var(--rx-leaf);border-radius:3px;position:relative;vertical-align:middle}
+.veg-dot::after,.nonveg-dot::after{content:'';position:absolute;inset:2px;border-radius:50%;background:var(--rx-leaf)}
+.nonveg-dot{border-color:var(--rx-red)}.nonveg-dot::after{background:var(--rx-red)}
+.stat-card{border:0;border-left:5px solid var(--rx-red);border-radius:.6rem;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.stat-card .num{font-size:1.8rem;font-weight:700}
+.auth-card{max-width:460px;margin:1rem auto;border:0;border-radius:1rem;box-shadow:0 6px 24px rgba(43,27,23,.12)}
+.avatar-lg{width:120px;height:120px;object-fit:cover;border-radius:50%;border:4px solid var(--rx-gold)}
+.thumb{width:48px;height:48px;object-fit:cover;border-radius:.4rem}
+.page-item.active .page-link{background:var(--rx-red);border-color:var(--rx-red)}
+.page-link{color:var(--rx-red)}
+.status-pending{background:#6c757d}.status-preparing{background:#fd7e14}.status-out_for_delivery{background:#0d6efd}.status-delivered{background:#198754}.status-cancelled{background:#dc3545}
+.table-responsive{border-radius:.6rem;background:#fff}
+:focus-visible{outline:3px solid var(--rx-gold);outline-offset:2px}

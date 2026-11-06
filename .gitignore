@@ -1,0 +1,4 @@
+uploads/avatars/*
+uploads/foods/*
+!uploads/avatars/.gitkeep
+!uploads/foods/.gitkeep
