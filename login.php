@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 unset($_SESSION['fails'], $_SESSION['lock_until']);
                 login_user($u);
-                redirect($u['role'] === 'admin' ? 'admin/index.php' : 'dashboard.php');
+                redirect($u['role'] === 'admin' ? 'admin/index.php' : ($u['role'] === 'shop_owner' ? 'shop/index.php' : 'dashboard.php'));
             }
         } else {
             $_SESSION['fails'] = ($_SESSION['fails'] ?? 0) + 1;

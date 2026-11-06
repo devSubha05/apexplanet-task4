@@ -1,4 +1,4 @@
-<?php require_once __DIR__ . '/auth.php'; $me = current_user(); $isAdminArea = !empty($adminArea); ?>
+<?php require_once __DIR__ . '/auth.php'; $me = current_user(); $isAdminArea = !empty($adminArea); $isShopArea = !empty($shopArea); ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,7 +12,7 @@
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark rx-nav sticky-top">
   <div class="container">
-    <a class="navbar-brand fw-bold" href="<?= url($isAdminArea ? 'admin/index.php' : 'index.php') ?>"><i class="bi bi-egg-fried me-1"></i><?= APP_NAME ?><?= $isAdminArea ? ' <small class="opacity-75">Admin</small>' : '' ?></a>
+    <a class="navbar-brand fw-bold" href="<?= url($isAdminArea ? 'admin/index.php' : ($isShopArea ? 'shop/index.php' : 'index.php')) ?>"><i class="bi bi-egg-fried me-1"></i><?= APP_NAME ?><?= $isAdminArea ? ' <small class="opacity-75">Admin</small>' : ($isShopArea ? ' <small class="opacity-75">Shop</small>' : '') ?></a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav"><span class="navbar-toggler-icon"></span></button>
     <div class="collapse navbar-collapse" id="nav">
       <ul class="navbar-nav me-auto">
@@ -23,12 +23,18 @@
           <li class="nav-item"><a class="nav-link" href="<?= url('admin/orders.php') ?>">Orders</a></li>
           <li class="nav-item"><a class="nav-link" href="<?= url('admin/users.php') ?>">Users</a></li>
           <li class="nav-item"><a class="nav-link" href="<?= url('index.php') ?>">View site</a></li>
+        <?php elseif ($isShopArea): ?>
+          <li class="nav-item"><a class="nav-link" href="<?= url('shop/index.php') ?>">Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="<?= url('shop/orders.php') ?>">Orders</a></li>
+          <li class="nav-item"><a class="nav-link" href="<?= url('shop/foods.php') ?>">My Dishes</a></li>
+          <li class="nav-item"><a class="nav-link" href="<?= url('index.php') ?>">View site</a></li>
         <?php else: ?>
           <li class="nav-item"><a class="nav-link" href="<?= url('index.php') ?>">Menu</a></li>
           <?php if ($me): ?>
             <li class="nav-item"><a class="nav-link" href="<?= url('dashboard.php') ?>">Dashboard</a></li>
             <li class="nav-item"><a class="nav-link" href="<?= url('orders.php') ?>">My orders</a></li>
             <?php if ($me['role'] === 'admin'): ?><li class="nav-item"><a class="nav-link" href="<?= url('admin/index.php') ?>">Admin panel</a></li><?php endif; ?>
+            <?php if ($me['role'] === 'shop_owner'): ?><li class="nav-item"><a class="nav-link" href="<?= url('shop/index.php') ?>"><i class="bi bi-shop me-1"></i>My Shop</a></li><?php endif; ?>
           <?php endif; ?>
         <?php endif; ?>
       </ul>

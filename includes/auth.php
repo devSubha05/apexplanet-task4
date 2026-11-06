@@ -50,6 +50,16 @@ function require_admin(): array {
     if ($u['role'] !== 'admin') { http_response_code(403); exit('403 - Admins only.'); }
     return $u;
 }
+function require_shop_owner(): array {
+    $u = require_login();
+    if ($u['role'] !== 'shop_owner') { http_response_code(403); exit('403 - Shop owners only.'); }
+    return $u;
+}
+function owner_shop(int $uid): ?array {
+    $s = db()->prepare('SELECT * FROM shops WHERE owner_id=?');
+    $s->execute([$uid]);
+    return $s->fetch() ?: null;
+}
 function login_user(array $row): void {
     session_regenerate_id(true);
     $_SESSION['uid'] = $row['id'];
