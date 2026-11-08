@@ -1,4 +1,51 @@
+# ========================================================
+# Git Ignore for Rasoi Express (Food Ordering System)
+# ========================================================
+
+# Operating System files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+._*
+
+# IDE & Editor files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.sublime-project
+*.sublime-workspace
+
+# Environment & Local Secrets
+.env
+.env.*
+!.env.example
+config/config.local.php
+
+# Logs & Temporary Files
+*.log
+error_log
+*.tmp
+*.bak
+*.cache
+temp/
+tmp/
+
+# Dependency directories (if added later)
+vendor/
+node_modules/
+
+# User profile uploads (preserve directory via .gitkeep)
 uploads/avatars/*
-uploads/foods/*
 !uploads/avatars/.gitkeep
-!uploads/foods/.gitkeep
+
+# Temporary database backups & dumps (database.sql is tracked)
+*.sql.bak
+*.sql.gz
+*.sqlite
+*.db
