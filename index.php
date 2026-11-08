@@ -97,7 +97,10 @@ require __DIR__ . '/includes/header.php';
   <?php foreach ($foods as $f): ?>
   <div class="col-12 col-sm-6 col-lg-3">
     <div class="card food-card h-100">
-      <img src="<?= e(food_img($f['image'])) ?>" class="card-img-top" alt="<?= e($f['name']) ?>">
+      <div class="food-img-wrapper" title="Click to view full photo">
+        <img src="<?= e(food_img($f['image'])) ?>" class="card-img-top food-img-clickable" alt="<?= e($f['name']) ?>" data-full-img="<?= e(food_img($f['image'])) ?>" data-title="<?= e($f['name']) ?>" data-desc="<?= e($f['description']) ?>" data-price="<?= money($f['price']) ?>" data-veg="<?= $f['is_veg'] ? '1' : '0' ?>" data-shop="<?= e($f['shop_name'] ?? '') ?>" data-cat="<?= e($f['cat'] ?? '') ?>" data-id="<?= (int)$f['id'] ?>">
+        <span class="zoom-hint"><i class="bi bi-arrows-fullscreen"></i></span>
+      </div>
       <div class="card-body d-flex flex-column">
         <div class="d-flex justify-content-between align-items-center mb-1">
           <span class="small text-muted"><?= e($f['cat']) ?></span>

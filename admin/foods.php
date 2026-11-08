@@ -47,7 +47,7 @@ require __DIR__ . '/../includes/header.php';
   <tbody>
   <?php foreach ($foods as $f): ?>
     <tr>
-      <td><img class="thumb" src="<?= e(food_img($f['image'])) ?>" alt=""></td>
+      <td><img class="thumb food-img-clickable" src="<?= e(food_img($f['image'])) ?>" alt="<?= e($f['name']) ?>" data-title="<?= e($f['name']) ?>" data-price="<?= money($f['price']) ?>" data-veg="<?= $f['is_veg'] ? '1' : '0' ?>" data-cat="<?= e($f['cat'] ?? '') ?>" title="Click to view full photo"></td>
       <td>
         <span class="<?= $f['is_veg'] ? 'veg-dot' : 'nonveg-dot' ?>"></span> <?= e($f['name']) ?>
         <?php if (!empty($f['shop_name'])): ?>

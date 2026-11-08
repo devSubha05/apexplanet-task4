@@ -30,4 +30,76 @@
       img.src = URL.createObjectURL(f);
     });
   });
+
+  // Full-size Food Image Lightbox on click
+  var lightboxEl = document.getElementById('foodLightboxModal');
+  if (lightboxEl) {
+    var modal = null;
+    var modalImg = document.getElementById('foodLightboxImg');
+    var modalTitle = document.getElementById('foodLightboxTitle');
+    var modalDesc = document.getElementById('foodLightboxDesc');
+    var modalPrice = document.getElementById('foodLightboxPrice');
+    var modalVeg = document.getElementById('foodLightboxVeg');
+    var modalCat = document.getElementById('foodLightboxCat');
+    var modalShop = document.getElementById('foodLightboxShop');
+    var modalId = document.getElementById('foodLightboxFoodId');
+    var modalForm = document.getElementById('foodLightboxCartForm');
+
+    document.addEventListener('click', function (e) {
+      var target = e.target.closest('.food-img-clickable, .food-card img, .thumb, .food-img-wrapper');
+      if (!target) return;
+
+      var img = target.tagName === 'IMG' ? target : target.querySelector('img');
+      if (!img) return;
+
+      var fullSrc = img.dataset.fullImg || img.src;
+      var title = img.dataset.title || img.alt || 'Dish Details';
+      var desc = img.dataset.desc || '';
+      var price = img.dataset.price || '';
+      var isVeg = img.dataset.veg;
+      var cat = img.dataset.cat || '';
+      var shop = img.dataset.shop || '';
+      var foodId = img.dataset.id || '';
+
+      if (modalImg) modalImg.src = fullSrc;
+      if (modalTitle) modalTitle.textContent = title;
+      if (modalDesc) {
+        modalDesc.textContent = desc;
+        modalDesc.style.display = desc ? 'block' : 'none';
+      }
+      if (modalPrice) modalPrice.textContent = price;
+
+      if (modalVeg) {
+        if (isVeg === '1') {
+          modalVeg.className = 'veg-dot me-1';
+          modalVeg.title = 'Vegetarian';
+          modalVeg.style.display = 'inline-block';
+        } else if (isVeg === '0') {
+          modalVeg.className = 'nonveg-dot me-1';
+          modalVeg.title = 'Non-Vegetarian';
+          modalVeg.style.display = 'inline-block';
+        } else {
+          modalVeg.style.display = 'none';
+        }
+      }
+
+      if (modalCat) {
+        modalCat.textContent = cat;
+        modalCat.style.display = cat ? 'inline-block' : 'none';
+      }
+
+      if (modalShop) {
+        modalShop.textContent = shop ? 'By ' + shop : '';
+        modalShop.style.display = shop ? 'inline-block' : 'none';
+      }
+
+      if (modalId) modalId.value = foodId;
+      if (modalForm) modalForm.style.display = foodId ? 'block' : 'none';
+
+      if (!modal && window.bootstrap && window.bootstrap.Modal) {
+        modal = new window.bootstrap.Modal(lightboxEl);
+      }
+      if (modal) modal.show();
+    });
+  }
 })();

@@ -110,7 +110,7 @@ require __DIR__ . '/../includes/header.php';
     <tbody>
     <?php foreach ($foods as $f): ?>
       <tr>
-        <td><img class="thumb rounded" src="<?= e(food_img($f['image'])) ?>" alt=""></td>
+        <td><img class="thumb rounded food-img-clickable" src="<?= e(food_img($f['image'])) ?>" alt="<?= e($f['name']) ?>" data-title="<?= e($f['name']) ?>" data-price="<?= money($f['price']) ?>" data-veg="<?= $f['is_veg'] ? '1' : '0' ?>" data-cat="<?= e($f['cat'] ?? '') ?>" data-desc="<?= e($f['description'] ?? '') ?>" title="Click to view full photo"></td>
         <td>
           <span class="<?= $f['is_veg'] ? 'veg-dot' : 'nonveg-dot' ?> me-1"></span>
           <strong class="text-dark"><?= e($f['name']) ?></strong>
