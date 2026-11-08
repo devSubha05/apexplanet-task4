@@ -1,5 +1,3 @@
--- Rasoi Express - Food Ordering System
--- Import in phpMyAdmin or: mysql -u root -p < database.sql
 CREATE DATABASE IF NOT EXISTS rasoi_express CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE rasoi_express;
 
