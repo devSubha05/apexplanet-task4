@@ -1,9 +1,10 @@
 :root{--rx-red:#c8102e;--rx-dark:#2b1b17;--rx-gold:#f7b32b;--rx-leaf:#2f6f4e;--rx-paper:#fff8ec}
-body{background:var(--rx-paper);color:var(--rx-dark);font-family:'Segoe UI',system-ui,-apple-system,sans-serif}
+body{background:var(--rx-paper);color:var(--rx-dark);font-family:'Segoe UI',system-ui,-apple-system,sans-serif;min-height:100vh;display:flex;flex-direction:column}
+main.main-content{flex:1 0 auto}
 .rx-nav{background:var(--rx-red)}
 .rx-nav .nav-link{color:rgba(255,255,255,.88)}
 .rx-nav .nav-link:hover{color:#fff}
-.rx-footer{background:var(--rx-dark);color:#e9d9c4}
+.rx-footer{background:var(--rx-dark);color:#e9d9c4;margin-top:auto}
 .btn-rx{background:var(--rx-red);border-color:var(--rx-red);color:#fff}
 .btn-rx:hover,.btn-rx:focus{background:#a30d25;border-color:#a30d25;color:#fff}
 .btn-outline-rx{border-color:var(--rx-red);color:var(--rx-red)}

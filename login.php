@@ -35,16 +35,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 require __DIR__ . '/includes/header.php';
 ?>
-<div class="card auth-card"><div class="card-body p-4">
-  <h3 class="mb-3">Welcome back</h3>
-  <?php if ($error): ?><div class="alert alert-danger py-2"><?= e($error) ?></div><?php endif; ?>
-  <form method="post" class="needs-validation" novalidate>
-    <?= csrf_field() ?>
-    <div class="mb-3"><label class="form-label" for="email">Email</label><input class="form-control" type="email" id="email" name="email" required><div class="invalid-feedback">Enter your email.</div></div>
-    <div class="mb-3"><label class="form-label" for="password">Password</label><input class="form-control" type="password" id="password" name="password" required><div class="invalid-feedback">Enter your password.</div></div>
-    <button class="btn btn-rx w-100">Log in</button>
-  </form>
-  <p class="text-center mt-3 mb-1 small"><a href="<?= url('forgot_password.php') ?>">Forgot password?</a></p>
-  <p class="text-center mb-0 small">New here? <a href="<?= url('register.php') ?>">Create an account</a></p>
-</div></div>
+<div class="d-flex align-items-center justify-content-center flex-grow-1 py-4">
+  <div class="card auth-card w-100 my-0"><div class="card-body p-4">
+    <h3 class="mb-3">Welcome back</h3>
+    <?php if ($error): ?><div class="alert alert-danger py-2"><?= e($error) ?></div><?php endif; ?>
+    <form method="post" class="needs-validation" novalidate>
+      <?= csrf_field() ?>
+      <div class="mb-3"><label class="form-label" for="email">Email</label><input class="form-control" type="email" id="email" name="email" required><div class="invalid-feedback">Enter your email.</div></div>
+      <div class="mb-3"><label class="form-label" for="password">Password</label><input class="form-control" type="password" id="password" name="password" required><div class="invalid-feedback">Enter your password.</div></div>
+      <button class="btn btn-rx w-100">Log in</button>
+    </form>
+    <p class="text-center mt-3 mb-1 small"><a href="<?= url('forgot_password.php') ?>">Forgot password?</a></p>
+    <p class="text-center mb-0 small">New here? <a href="<?= url('register.php') ?>">Create an account</a></p>
+  </div></div>
+</div>
 <?php require __DIR__ . '/includes/footer.php'; ?>

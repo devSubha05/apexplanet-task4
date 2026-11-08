@@ -19,16 +19,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 require __DIR__ . '/includes/header.php';
 ?>
-<div class="card auth-card"><div class="card-body p-4">
-  <h3 class="mb-3">Reset your password</h3>
-  <form method="post" class="needs-validation" novalidate>
-    <?= csrf_field() ?>
-    <div class="mb-3"><label class="form-label" for="email">Registered email</label><input class="form-control" type="email" id="email" name="email" required><div class="invalid-feedback">Enter your email.</div></div>
-    <button class="btn btn-rx w-100">Get reset link</button>
-  </form>
-  <?php if ($link): ?>
-    <div class="alert alert-warning mt-3 small mb-0"><strong>Demo mode:</strong> no email server on localhost. Use this link (valid 30 minutes):<br><a href="<?= e($link) ?>">Open reset page</a></div>
-  <?php endif; ?>
-  <p class="text-center mt-3 mb-0 small"><a href="<?= url('login.php') ?>">Back to log in</a></p>
-</div></div>
+<div class="d-flex align-items-center justify-content-center flex-grow-1 py-4">
+  <div class="card auth-card w-100 my-0"><div class="card-body p-4">
+    <h3 class="mb-3">Reset your password</h3>
+    <form method="post" class="needs-validation" novalidate>
+      <?= csrf_field() ?>
+      <div class="mb-3"><label class="form-label" for="email">Registered email</label><input class="form-control" type="email" id="email" name="email" required><div class="invalid-feedback">Enter your email.</div></div>
+      <button class="btn btn-rx w-100">Get reset link</button>
+    </form>
+    <?php if ($link): ?>
+      <div class="alert alert-warning mt-3 small mb-0"><strong>Demo mode:</strong> no email server on localhost. Use this link (valid 30 minutes):<br><a href="<?= e($link) ?>">Open reset page</a></div>
+    <?php endif; ?>
+    <p class="text-center mt-3 mb-0 small"><a href="<?= url('login.php') ?>">Back to log in</a></p>
+  </div></div>
+</div>
 <?php require __DIR__ . '/includes/footer.php'; ?>

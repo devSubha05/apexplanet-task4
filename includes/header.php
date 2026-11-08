@@ -63,7 +63,7 @@
     </div>
   </div>
 </nav>
-<main class="container py-4">
+<main class="container py-4 main-content flex-grow-1 d-flex flex-column">
 <?php foreach (get_flash() as [$t, $m]): ?>
   <div class="alert alert-<?= e($t) ?> alert-dismissible fade show" role="alert"><?= e($m) ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
 <?php endforeach; ?>
