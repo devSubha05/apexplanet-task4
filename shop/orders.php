@@ -12,7 +12,6 @@ if (!$shop) {
 
 $validStatuses = ['pending', 'preparing', 'out_for_delivery', 'delivered', 'cancelled'];
 
-// Handle status updates
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_check();
     $action = $_POST['action'] ?? '';
@@ -51,7 +50,6 @@ if ($q !== '') {
 }
 $w = implode(' AND ', $where);
 
-// Count total orders matching criteria
 $countStmt = $pdo->prepare("SELECT COUNT(DISTINCT o.id)
     FROM orders o
     JOIN users u ON u.id = o.user_id
@@ -110,7 +108,6 @@ require __DIR__ . '/../includes/header.php';
   <a href="<?= url('shop/index.php') ?>" class="btn btn-outline-secondary btn-sm"><i class="bi bi-speedometer2 me-1"></i> Dashboard</a>
 </div>
 
-<!-- Filter Bar -->
 <form class="row g-2 mb-3" method="get">
   <div class="col-md-5">
     <input class="form-control" type="search" name="q" placeholder="Customer name, phone, order # or food..." value="<?= e($q) ?>">

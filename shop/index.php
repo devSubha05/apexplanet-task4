@@ -4,8 +4,6 @@ $me = require_shop_owner();
 $shopArea = true;
 $pageTitle = 'Shop Dashboard';
 $pdo = db();
-
-// Ensure the shop owner has a shop record
 $shop = owner_shop($me['id']);
 if (!$shop) {
     $pdo->prepare('INSERT INTO shops (name, description, address, phone, owner_id) VALUES (?, ?, ?, ?, ?)')
@@ -15,7 +13,6 @@ if (!$shop) {
 
 $validStatuses = ['pending', 'preparing', 'out_for_delivery', 'delivered', 'cancelled'];
 
-// Handle quick order status update from the shop dashboard
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_check();
     $action = $_POST['action'] ?? '';
@@ -23,7 +20,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $newStatus = $_POST['status'] ?? '';
 
     if ($action === 'status' && in_array($newStatus, $validStatuses, true)) {
-        // Verify this order belongs to items from this shop
         $chk = $pdo->prepare('SELECT COUNT(*) FROM order_items oi JOIN foods f ON f.id=oi.food_id WHERE oi.order_id=? AND f.shop_id=?');
         $chk->execute([$oid, $shop['id']]);
         if ($chk->fetchColumn() > 0) {
@@ -36,7 +32,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect('shop/index.php');
 }
 
-// Stats for this shop
 $stats = $pdo->prepare("SELECT
     COUNT(DISTINCT o.id) AS total_orders,
     COUNT(DISTINCT CASE WHEN o.status='pending' THEN o.id END) AS pending_orders,
@@ -50,12 +45,10 @@ WHERE f.shop_id = ?");
 $stats->execute([$shop['id']]);
 $stat = $stats->fetch();
 
-// Total food dishes in this shop
 $dishCountStmt = $pdo->prepare('SELECT COUNT(*) FROM foods WHERE shop_id = ?');
 $dishCountStmt->execute([$shop['id']]);
 $totalDishes = (int)$dishCountStmt->fetchColumn();
 
-// Filter orders
 $statusFilter = $_GET['status'] ?? '';
 $searchFilter = trim($_GET['q'] ?? '');
 
@@ -76,7 +69,6 @@ if ($searchFilter !== '') {
 
 $whereClause = implode(' AND ', $where);
 
-// Fetch orders with customer info
 $ordersQuery = $pdo->prepare("SELECT DISTINCT
     o.id, o.user_id, o.status, o.payment_method, o.delivery_address,
     o.phone AS order_phone, o.note, o.created_at,
@@ -93,7 +85,6 @@ LIMIT 20");
 $ordersQuery->execute($args);
 $orders = $ordersQuery->fetchAll();
 
-// Fetch the items belonging to this shop for each order
 $orderIds = array_column($orders, 'id');
 $itemsByOrder = [];
 if (!empty($orderIds)) {
@@ -109,7 +100,6 @@ if (!empty($orderIds)) {
     }
 }
 
-// Top selling dishes for this shop
 $topStmt = $pdo->prepare("SELECT oi.food_name, SUM(oi.quantity) AS sold_qty, SUM(oi.price * oi.quantity) AS dish_revenue
     FROM order_items oi
     JOIN foods f ON f.id = oi.food_id
@@ -124,7 +114,6 @@ $topDishes = $topStmt->fetchAll();
 require __DIR__ . '/../includes/header.php';
 ?>
 
-<!-- Shop Profile Banner -->
 <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #2b1b17 0%, #731b1b 100%); color: #fff; border-radius: 1rem;">
   <div class="card-body p-4 d-flex flex-wrap align-items-center justify-content-between gap-3">
     <div>
@@ -144,7 +133,6 @@ require __DIR__ . '/../includes/header.php';
   </div>
 </div>
 
-<!-- Stat Cards -->
 <div class="row g-3 mb-4">
   <div class="col-6 col-lg-3">
     <div class="card stat-card shadow-sm h-100">
@@ -184,7 +172,6 @@ require __DIR__ . '/../includes/header.php';
   </div>
 </div>
 
-<!-- Orders Section: WHO ORDERED & WHICH FOOD -->
 <div class="card border-0 shadow-sm mb-4">
   <div class="card-header bg-white py-3 border-0">
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
@@ -197,7 +184,6 @@ require __DIR__ . '/../includes/header.php';
       </div>
     </div>
 
-    <!-- Filter Bar -->
     <form class="row g-2 mt-2" method="get">
       <div class="col-md-5">
         <div class="input-group">
@@ -248,7 +234,6 @@ require __DIR__ . '/../includes/header.php';
       <?php else: ?>
         <?php foreach ($orders as $o): ?>
         <tr>
-          <!-- Order ID & Meta -->
           <td class="align-top py-3">
             <span class="fw-bold fs-6">#<?= $o['id'] ?></span>
             <div class="small text-muted mt-1"><?= e(date('d M Y', strtotime($o['created_at']))) ?></div>
@@ -256,7 +241,6 @@ require __DIR__ . '/../includes/header.php';
             <span class="badge bg-light text-dark border mt-1 text-uppercase"><?= e($o['payment_method']) ?></span>
           </td>
 
-          <!-- WHO ORDERED (Customer Information) -->
           <td class="align-top py-3">
             <div class="fw-bold text-dark fs-6"><?= e($o['customer_name']) ?></div>
             <div class="small mt-1">
@@ -277,7 +261,6 @@ require __DIR__ . '/../includes/header.php';
             <?php endif; ?>
           </td>
 
-          <!-- WHICH FOOD ORDERED -->
           <td class="align-top py-3">
             <div class="border rounded p-2 bg-white">
               <?php
@@ -303,13 +286,11 @@ require __DIR__ . '/../includes/header.php';
             </div>
           </td>
 
-          <!-- SHOP AMOUNT -->
           <td class="align-top py-3">
             <div class="fs-5 fw-bold text-success"><?= money($o['shop_subtotal']) ?></div>
             <div class="small text-muted">from <?= count($itemsByOrder[$o['id']] ?? []) ?> dish item(s)</div>
           </td>
 
-          <!-- STATUS & ACTION -->
           <td class="align-top py-3">
             <div class="mb-2">
               <span class="badge status-<?= e($o['status']) ?> px-2 py-1 fs-7">
@@ -317,7 +298,6 @@ require __DIR__ . '/../includes/header.php';
               </span>
             </div>
 
-            <!-- Quick Status Change Form -->
             <form method="post" class="d-flex flex-column gap-1">
               <?= csrf_field() ?>
               <input type="hidden" name="action" value="status">
@@ -342,7 +322,6 @@ require __DIR__ . '/../includes/header.php';
   </div>
 </div>
 
-<!-- Bottom Section: Top Selling Dishes & Quick Actions -->
 <div class="row g-4">
   <div class="col-lg-7">
     <div class="card border-0 shadow-sm h-100">

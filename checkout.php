@@ -15,7 +15,6 @@ if (!$items) { $_SESSION['cart'] = []; redirect('index.php'); }
 $errors = [];
 $address = $me['address'] ?? '';
 $pincode = '';
-// Auto-detect 6-digit pincode from user's saved profile address if present
 if (preg_match('/\b([1-9][0-9]{5})\b/', $address, $pinMatch)) {
     $pincode = $pinMatch[1];
 }
@@ -52,13 +51,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $pdo->beginTransaction();
 
-            // Append PIN code to delivery address if not already explicitly written there
             $fullDeliveryAddress = $address;
             if (!str_contains($address, $pincode)) {
                 $fullDeliveryAddress .= " - PIN: $pincode";
             }
 
-            // Insert order with dedicated pincode column and full address
             $pdo->prepare('INSERT INTO orders (user_id,total,payment_method,delivery_address,pincode,phone,note) VALUES (?,?,?,?,?,?,?)')
                 ->execute([$me['id'], $total, $pay, $fullDeliveryAddress, $pincode, $phone, $note ?: null]);
             $oid = (int)$pdo->lastInsertId();
@@ -89,7 +86,6 @@ require __DIR__ . '/includes/header.php';
     <form method="post" class="needs-validation card card-body border-0 shadow-sm" novalidate>
       <?= csrf_field() ?>
 
-      <!-- Delivery Address -->
       <div class="mb-3">
         <label class="form-label fw-semibold" for="address">
           <i class="bi bi-house-door me-1 text-danger"></i> Delivery Address
@@ -98,7 +94,6 @@ require __DIR__ . '/includes/header.php';
         <div class="invalid-feedback">Enter your street / house delivery address.</div>
       </div>
 
-      <!-- Pincode and Phone Row -->
       <div class="row g-3 mb-3">
         <div class="col-md-6">
           <label class="form-label fw-semibold" for="pincode">
@@ -125,7 +120,6 @@ require __DIR__ . '/includes/header.php';
         </div>
       </div>
 
-      <!-- Note for the kitchen -->
       <div class="mb-3">
         <label class="form-label fw-semibold" for="note">
           <i class="bi bi-chat-left-text me-1 text-danger"></i> Note for the kitchen (optional)
@@ -133,7 +127,6 @@ require __DIR__ . '/includes/header.php';
         <input class="form-control" id="note" name="note" maxlength="255" placeholder="e.g. Less spicy, call on arrival, extra napkins" value="<?= e($note) ?>">
       </div>
 
-      <!-- Payment Method -->
       <div class="mb-4">
         <label class="form-label fw-semibold d-block">
           <i class="bi bi-credit-card me-1 text-danger"></i> Payment Method

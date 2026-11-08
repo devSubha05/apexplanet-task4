@@ -11,8 +11,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $token = bin2hex(random_bytes(32));
         db()->prepare('INSERT INTO password_resets (user_id,token_hash,expires_at) VALUES (?,?,DATE_ADD(NOW(), INTERVAL 30 MINUTE))')
             ->execute([$u['id'], hash('sha256', $token)]);
-        // DEMO MODE: no mail server on localhost, so the link is shown on screen.
-        // In production, email this link instead of displaying it.
         $link = url('reset_password.php?token=' . $token);
     }
     flash('info', 'If that email is registered, a reset link has been generated.');

@@ -1,25 +1,16 @@
 <?php
 require_once __DIR__ . '/../config/config.php';
 
-/**
- * Auto-start MariaDB if it is not running.
- * Launches mysqld.exe as a hidden background process using VBScript
- * and waits up to 8 seconds for port 3306 to become available.
- */
 function ensure_mariadb_running(): void {
-    // Path to MariaDB installation — adjust if yours differs
     $mysqld  = 'C:\Program Files\MariaDB 13.0\bin\mysqld.exe';
     $iniFile = 'C:\Program Files\MariaDB 13.0\data\my.ini';
     $mariaHome = 'C:\Program Files\MariaDB 13.0';
 
-    if (!file_exists($mysqld)) return; // MariaDB not installed at expected path
-
-    // Quick TCP probe to see if port 3306 is already listening
+    if (!file_exists($mysqld)) return; 
     $sock = @fsockopen('127.0.0.1', 3306, $errno, $errstr, 1);
-    if ($sock) { fclose($sock); return; } // Already running — nothing to do
+    if ($sock) { fclose($sock); return; } 
 
     if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-        // Launch mysqld fully detached via a temporary VBS script (hidden, no console)
         $vbs = sys_get_temp_dir() . '\rasoi_start_mariadb.vbs';
         $lines = [
             'Set objShell = CreateObject("WScript.Shell")',
@@ -29,23 +20,19 @@ function ensure_mariadb_running(): void {
         file_put_contents($vbs, implode("\r\n", $lines) . "\r\n");
         pclose(popen('cscript //nologo "' . $vbs . '"', 'r'));
     } else {
-        // Linux / Mac fallback
         exec('"' . $mysqld . '" --defaults-file="' . $iniFile . '" > /dev/null 2>&1 &');
     }
 
-    // Wait up to 8 seconds for MariaDB to become ready
     for ($i = 0; $i < 16; $i++) {
-        usleep(500_000); // 0.5 second
+        usleep(500_000); 
         $sock = @fsockopen('127.0.0.1', 3306, $errno, $errstr, 1);
         if ($sock) { fclose($sock); return; }
     }
-    // If still not up after 8s, the caller's PDO will throw and show the error page
 }
 
 function db(): PDO {
     static $pdo = null;
     if ($pdo === null) {
-        // Try to auto-start MariaDB before connecting
         ensure_mariadb_running();
 
         try {

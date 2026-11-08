@@ -5,7 +5,7 @@ $pageTitle = 'Menu';
 $q    = trim($_GET['q'] ?? '');
 $cat  = (int)($_GET['cat'] ?? 0);
 $shop = (int)($_GET['shop'] ?? 0);
-$type = $_GET['type'] ?? '';          // veg | nonveg
+$type = $_GET['type'] ?? ''; 
 $sort = $_GET['sort'] ?? 'new';
 $page = max(1, (int)($_GET['page'] ?? 1));
 

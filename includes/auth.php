@@ -6,7 +6,6 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-/* ---------- helpers ---------- */
 function e($v): string { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
 function url(string $p = ''): string { return BASE_URL . '/' . ltrim($p, '/'); }
 function redirect(string $p): void { header('Location: ' . url($p)); exit; }
@@ -15,7 +14,6 @@ function money($n): string { return '₹' . number_format((float)$n, 2); }
 function flash(string $type, string $msg): void { $_SESSION['flash'][] = [$type, $msg]; }
 function get_flash(): array { $f = $_SESSION['flash'] ?? []; unset($_SESSION['flash']); return $f; }
 
-/* ---------- CSRF ---------- */
 function csrf_token(): string {
     if (empty($_SESSION['csrf'])) $_SESSION['csrf'] = bin2hex(random_bytes(32));
     return $_SESSION['csrf'];
@@ -26,7 +24,6 @@ function csrf_check(): void {
     if (!$ok) { http_response_code(419); exit('Invalid or expired form token. Go back and try again.'); }
 }
 
-/* ---------- auth ---------- */
 function current_user(): ?array {
     static $u = false;
     if ($u === false) {
@@ -60,7 +57,6 @@ function owner_shop(int $uid): ?array {
     $s->execute([$uid]);
     $shop = $s->fetch();
     if (!$shop) {
-        // If user is admin and has no shop of their own, default to the first available shop
         $u = current_user();
         if ($u && $u['role'] === 'admin') {
             $first = db()->query('SELECT * FROM shops ORDER BY id ASC LIMIT 1')->fetch();
@@ -76,7 +72,6 @@ function login_user(array $row): void {
     db()->prepare('UPDATE users SET last_login_at=NOW() WHERE id=?')->execute([$row['id']]);
 }
 
-/* ---------- validation ---------- */
 function valid_password(string $p): ?string {
     if (strlen($p) < 8) return 'Password must be at least 8 characters.';
     if (!preg_match('/[A-Z]/', $p) || !preg_match('/[a-z]/', $p) || !preg_match('/\d/', $p))
@@ -85,9 +80,7 @@ function valid_password(string $p): ?string {
 }
 function valid_phone(string $p): bool { return (bool)preg_match('/^[0-9]{10}$/', $p); }
 
-/* ---------- uploads (images) ---------- */
 function save_image(array $file, string $dir): array {
-    // returns [filename|null, error|null]
     if ($file['error'] === UPLOAD_ERR_NO_FILE) return [null, null];
     if ($file['error'] !== UPLOAD_ERR_OK) return [null, 'Upload failed. Try again.'];
     if ($file['size'] > MAX_UPLOAD_BYTES) return [null, 'Image must be 2 MB or smaller.'];
@@ -108,11 +101,9 @@ function avatar_url(?array $u): string {
 }
 function food_img(?string $f): string { return $f ? url('uploads/foods/' . $f) : url('assets/img-placeholder.svg'); }
 
-/* ---------- cart (session) ---------- */
 function cart(): array { return $_SESSION['cart'] ?? []; }
 function cart_count(): int { return array_sum(cart()); }
 
-/* ---------- pagination ---------- */
 function paginate(int $total, int $page, int $per, string $baseQuery = ''): string {
     $pages = (int)ceil($total / $per);
     if ($pages <= 1) return '';

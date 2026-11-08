@@ -3,7 +3,6 @@
   <div class="container small">&copy; <?= date('Y') ?> <?= APP_NAME ?> &middot; ApexPlanet Internship Task 4</div>
 </footer>
 
-<!-- Full Image Lightbox Modal -->
 <div class="modal fade" id="foodLightboxModal" tabindex="-1" aria-labelledby="foodLightboxTitle" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content border-0 shadow-lg overflow-hidden" style="border-radius: 1rem; background: #1a1615;">

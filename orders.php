@@ -3,7 +3,6 @@ require_once __DIR__ . '/includes/auth.php';
 $me = require_login();
 $pageTitle = 'My orders';
 
-/* Cancel (only while pending) */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_check();
     $oid = (int)($_POST['order_id'] ?? 0);
@@ -13,7 +12,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect('orders.php?id=' . $oid);
 }
 
-/* Single order */
 if (isset($_GET['id'])) {
     $oid = (int)$_GET['id'];
     $s = db()->prepare('SELECT * FROM orders WHERE id=? AND user_id=?'); $s->execute([$oid, $me['id']]);
@@ -47,7 +45,6 @@ if (isset($_GET['id'])) {
 </div>
 <?php require __DIR__ . '/includes/footer.php'; exit; }
 
-/* List with filter + pagination */
 $status = $_GET['status'] ?? '';
 $page = max(1, (int)($_GET['page'] ?? 1));
 $valid = ['pending', 'preparing', 'out_for_delivery', 'delivered', 'cancelled'];

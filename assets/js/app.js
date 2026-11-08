@@ -1,4 +1,3 @@
-// Client-side validation (server-side validation is the real protection)
 (function () {
   document.querySelectorAll('form.needs-validation').forEach(function (form) {
     form.addEventListener('submit', function (ev) {
@@ -14,14 +13,12 @@
     });
   });
 
-  // Confirmation popup for destructive actions: <form data-confirm="Delete this?">
   document.querySelectorAll('form[data-confirm]').forEach(function (f) {
     f.addEventListener('submit', function (ev) {
       if (!window.confirm(f.dataset.confirm)) ev.preventDefault();
     });
   });
 
-  // Live avatar/food image preview: <input type="file" data-preview="#imgId">
   document.querySelectorAll('input[type="file"][data-preview]').forEach(function (inp) {
     inp.addEventListener('change', function () {
       var f = inp.files[0], img = document.querySelector(inp.dataset.preview);
@@ -31,7 +28,6 @@
     });
   });
 
-  // Full-size Food Image Lightbox on click
   var lightboxEl = document.getElementById('foodLightboxModal');
   if (lightboxEl) {
     var modal = null;

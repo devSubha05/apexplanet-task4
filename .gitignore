@@ -1,7 +1,3 @@
-# ========================================================
-# Git Ignore for Rasoi Express (Food Ordering System)
-# ========================================================
-
 # Operating System files
 Thumbs.db
 ehthumbs.db

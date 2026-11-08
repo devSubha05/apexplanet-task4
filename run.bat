@@ -6,7 +6,6 @@ echo ========================================================
 echo Starting Rasoi Express (Database + Web Server)...
 echo ========================================================
 
-:: 1. Start MariaDB in its own window if not already running on port 3306
 netstat -ano | findstr :3306 | findstr LISTENING >nul 2>&1
 if %errorlevel% neq 0 (
     echo Starting MariaDB Server on port 3306...
@@ -16,7 +15,6 @@ if %errorlevel% neq 0 (
     echo [OK] MariaDB is already running on port 3306.
 )
 
-:: 2. Launch PHP built-in server
 echo.
 echo ========================================================
 echo Web Server running at: http://localhost:8000/

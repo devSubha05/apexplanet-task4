@@ -8,8 +8,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_check();
     $email = strtolower(trim($_POST['email'] ?? ''));
     $pw = $_POST['password'] ?? '';
-
-    // simple brute-force throttle: 5 failures -> 5 minute lock per session
     if (($_SESSION['fails'] ?? 0) >= 5 && time() < ($_SESSION['lock_until'] ?? 0)) {
         $error = 'Too many failed attempts. Try again in a few minutes.';
     } else {

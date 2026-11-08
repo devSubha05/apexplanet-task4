@@ -12,7 +12,6 @@ $stat = $pdo->query("SELECT
   (SELECT COUNT(*) FROM orders WHERE status='pending') AS pending,
   (SELECT COALESCE(SUM(total),0) FROM orders WHERE status<>'cancelled') AS revenue")->fetch();
 
-// orders per day, last 7 days (fill gaps with zero)
 $rows = $pdo->query("SELECT DATE(created_at) d, COUNT(*) c FROM orders WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY) GROUP BY DATE(created_at)")->fetchAll(PDO::FETCH_KEY_PAIR);
 $labels = []; $counts = [];
 for ($i = 6; $i >= 0; $i--) { $d = date('Y-m-d', strtotime("-$i day")); $labels[] = date('d M', strtotime($d)); $counts[] = (int)($rows[$d] ?? 0); }
