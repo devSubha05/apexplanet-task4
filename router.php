@@ -11,6 +11,14 @@ if ($uri !== '/' && is_file($file)) {
     return false;
 }
 
+// Auto-start MariaDB if not already running
+if (file_exists(__DIR__ . '/includes/db.php')) {
+    require_once __DIR__ . '/includes/db.php';
+    if (function_exists('ensure_mariadb_running')) {
+        ensure_mariadb_running();
+    }
+}
+
 // 2. Direct folder routes
 if ($uri === '/shop' || $uri === '/shop/') {
     require __DIR__ . '/shop/index.php';

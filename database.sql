@@ -64,6 +64,7 @@ CREATE TABLE orders (
   status ENUM('pending','preparing','out_for_delivery','delivered','cancelled') NOT NULL DEFAULT 'pending',
   payment_method ENUM('cod','upi') NOT NULL DEFAULT 'cod',
   delivery_address VARCHAR(255) NOT NULL,
+  pincode VARCHAR(10) DEFAULT NULL,
   phone VARCHAR(15) NOT NULL,
   note VARCHAR(255) DEFAULT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

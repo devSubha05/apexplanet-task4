@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/includes/auth.php';
-if (current_user()) redirect('dashboard.php');
+if (current_user()) redirect('index.php');
 $pageTitle = 'Log in';
 $error = '';
 
@@ -24,7 +24,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 unset($_SESSION['fails'], $_SESSION['lock_until']);
                 login_user($u);
-                redirect($u['role'] === 'admin' ? 'admin/index.php' : ($u['role'] === 'shop_owner' ? 'shop/index.php' : 'dashboard.php'));
+                flash('success', 'Welcome back, ' . ($u['name'] ?? 'user') . '!');
+                redirect('index.php');
             }
         } else {
             $_SESSION['fails'] = ($_SESSION['fails'] ?? 0) + 1;

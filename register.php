@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/includes/auth.php';
-if (current_user()) redirect('dashboard.php');
+if (current_user()) redirect('index.php');
 $pageTitle = 'Sign up';
 $errors = []; $old = ['name' => '', 'email' => '', 'phone' => ''];
 

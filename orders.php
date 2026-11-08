@@ -33,7 +33,12 @@ if (isset($_GET['id'])) {
     <tfoot><tr><th colspan="3" class="text-end">Total</th><th><?= money($o['total']) ?></th></tr></tfoot>
   </table></div></div>
   <div class="col-lg-4"><div class="card border-0 shadow-sm"><div class="card-body">
-    <h6>Delivery</h6><p class="mb-1"><?= nl2br(e($o['delivery_address'])) ?></p><p class="mb-2"><i class="bi bi-telephone"></i> <?= e($o['phone']) ?></p>
+    <h6>Delivery</h6>
+    <p class="mb-1"><?= nl2br(e($o['delivery_address'])) ?></p>
+    <?php if (!empty($o['pincode'])): ?>
+      <p class="mb-1"><span class="badge bg-light text-dark border"><i class="bi bi-geo-alt text-danger me-1"></i>PIN: <?= e($o['pincode']) ?></span></p>
+    <?php endif; ?>
+    <p class="mb-2"><i class="bi bi-telephone"></i> <?= e($o['phone']) ?></p>
     <?php if ($o['note']): ?><p class="small text-muted">Note: <?= e($o['note']) ?></p><?php endif; ?>
     <?php if ($o['status'] === 'pending'): ?>
       <form method="post" data-confirm="Cancel this order?"><?= csrf_field() ?><input type="hidden" name="order_id" value="<?= $o['id'] ?>"><button class="btn btn-outline-danger btn-sm">Cancel order</button></form>
