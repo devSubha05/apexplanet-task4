@@ -25,6 +25,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $pdo->prepare('UPDATE orders SET status=? WHERE id=?')->execute([$newStatus, $oid]);
             flash('success', "Order #$oid updated to " . ucwords(str_replace('_', ' ', $newStatus)) . ".");
         }
+    } elseif ($action === 'assign_rider') {
+        $riderId = !empty($_POST['delivery_boy_id']) ? (int)$_POST['delivery_boy_id'] : null;
+        $chk = $pdo->prepare('SELECT COUNT(*) FROM order_items oi JOIN foods f ON f.id=oi.food_id WHERE oi.order_id=? AND f.shop_id=?');
+        $chk->execute([$oid, $shop['id']]);
+        if ($chk->fetchColumn() > 0) {
+            $pdo->prepare("UPDATE orders SET delivery_boy_id=?, status = IF(status='pending', 'preparing', status) WHERE id=?")
+                ->execute([$riderId, $oid]);
+            if ($riderId) {
+                $rName = $pdo->query("SELECT name FROM users WHERE id = $riderId")->fetchColumn();
+                flash('success', "Assigned $rName to Order #$oid! Order moved to Preparing.");
+            } else {
+                flash('warning', "Delivery partner unassigned from Order #$oid.");
+            }
+        }
     }
     header('Location: ' . url('shop/orders.php' . (isset($_POST['back']) ? '?' . ltrim($_POST['back'], '?') : '')));
     exit;
@@ -63,16 +77,18 @@ $perPage = PER_PAGE;
 $offset = ($page - 1) * $perPage;
 
 $ordersStmt = $pdo->prepare("SELECT DISTINCT
-    o.id, o.user_id, o.status, o.payment_method, o.delivery_address,
+    o.id, o.user_id, o.status, o.payment_method, o.delivery_address, o.delivery_boy_id,
     o.phone AS order_phone, o.note, o.created_at,
     u.name AS customer_name, u.email AS customer_email,
+    d.name AS delivery_boy_name, d.phone AS delivery_boy_phone,
     SUM(oi.price * oi.quantity) AS shop_subtotal
 FROM orders o
 JOIN users u ON u.id = o.user_id
+LEFT JOIN users d ON d.id = o.delivery_boy_id
 JOIN order_items oi ON oi.order_id = o.id
 JOIN foods f ON f.id = oi.food_id
 WHERE $w
-GROUP BY o.id, o.user_id, o.status, o.payment_method, o.delivery_address, o.phone, o.note, o.created_at, u.name, u.email
+GROUP BY o.id, o.user_id, o.status, o.payment_method, o.delivery_address, o.delivery_boy_id, o.phone, o.note, o.created_at, u.name, u.email, d.name, d.phone
 ORDER BY o.id DESC
 LIMIT $perPage OFFSET $offset");
 $ordersStmt->execute($args);
@@ -97,6 +113,17 @@ $qs = http_build_query(array_filter(['status' => $status, 'q' => $q]));
 $back = $qs . ($page > 1 ? ($qs ? '&' : '') . 'page=' . $page : '');
 $qs = $qs ? $qs . '&' : '';
 
+// Fetch live delivery partners and their active workloads
+$ridersStmt = $pdo->query("SELECT u.id, u.name, u.email, u.phone, u.address, u.avatar,
+    COUNT(CASE WHEN o.status IN ('preparing', 'out_for_delivery') THEN o.id END) AS active_deliveries,
+    COUNT(CASE WHEN o.status = 'delivered' AND DATE(o.delivered_at) = CURDATE() THEN o.id END) AS delivered_today
+FROM users u
+LEFT JOIN orders o ON o.delivery_boy_id = u.id
+WHERE u.role = 'delivery' AND u.status = 'active'
+GROUP BY u.id, u.name, u.email, u.phone, u.address, u.avatar
+ORDER BY active_deliveries ASC, u.name ASC");
+$deliveryBoys = $ridersStmt->fetchAll();
+
 require __DIR__ . '/../includes/header.php';
 ?>
 
@@ -106,6 +133,32 @@ require __DIR__ . '/../includes/header.php';
     <small class="text-muted"><?= e($shop['name']) ?> &middot; <?= $total ?> total matching order<?= $total === 1 ? '' : 's' ?></small>
   </div>
   <a href="<?= url('shop/index.php') ?>" class="btn btn-outline-secondary btn-sm"><i class="bi bi-speedometer2 me-1"></i> Dashboard</a>
+</div>
+
+<!-- Quick Delivery Boys Availability Widget -->
+<div class="card border-0 shadow-sm mb-3" style="border-radius: 0.8rem; background: #fff8f0; border-left: 4px solid #f7b32b !important;">
+  <div class="card-body py-2 px-3">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-bicycle fs-4 text-warning"></i>
+        <div>
+          <strong class="text-dark">Live Delivery Boys Fleet:</strong>
+          <span class="text-muted small ms-1">Check who is free before assigning incoming orders:</span>
+        </div>
+      </div>
+      <div class="d-flex flex-wrap gap-2">
+        <?php foreach ($deliveryBoys as $dboy):
+          $isFree = ((int)$dboy['active_deliveries'] === 0);
+        ?>
+          <div class="badge <?= $isFree ? 'bg-success bg-opacity-10 text-success border border-success' : 'bg-warning bg-opacity-10 text-dark border border-warning' ?> p-2 d-flex align-items-center gap-2">
+            <span class="rounded-circle p-1 <?= $isFree ? 'bg-success' : 'bg-warning' ?>"></span>
+            <span><strong><?= e($dboy['name']) ?></strong>: <?= $isFree ? 'Free & Ready' : (int)$dboy['active_deliveries'] . ' in transit' ?></span>
+            <a href="tel:<?= e($dboy['phone']) ?>" class="text-decoration-none text-muted" title="Call <?= e($dboy['phone']) ?>"><i class="bi bi-telephone-fill"></i></a>
+          </div>
+        <?php endforeach; ?>
+      </div>
+    </div>
+  </div>
 </div>
 
 <form class="row g-2 mb-3" method="get">
@@ -133,6 +186,7 @@ require __DIR__ . '/../includes/header.php';
         <th>Customer (Who Ordered)</th>
         <th>Foods Ordered</th>
         <th>Shop Total</th>
+        <th>Delivery Partner</th>
         <th>Date</th>
         <th>Status &amp; Action</th>
       </tr>
@@ -163,6 +217,59 @@ require __DIR__ . '/../includes/header.php';
           <?php endforeach; ?>
         </td>
         <td class="align-top fw-bold text-success fs-6"><?= money($o['shop_subtotal']) ?></td>
+        
+        <td class="align-top" style="min-width: 220px;">
+          <?php if (!empty($o['delivery_boy_id'])): ?>
+            <div class="p-2 rounded bg-light border">
+              <div class="d-flex align-items-center gap-1 mb-1">
+                <i class="bi bi-bicycle text-primary fs-5"></i>
+                <div>
+                  <strong class="d-block text-dark small"><?= e($o['delivery_boy_name']) ?></strong>
+                  <a href="tel:<?= e($o['delivery_boy_phone']) ?>" class="small text-muted text-decoration-none"><i class="bi bi-telephone text-success"></i> <?= e($o['delivery_boy_phone']) ?></a>
+                </div>
+              </div>
+              <form method="post" class="mt-1">
+                <?= csrf_field() ?>
+                <input type="hidden" name="action" value="assign_rider">
+                <input type="hidden" name="order_id" value="<?= $o['id'] ?>">
+                <input type="hidden" name="back" value="<?= e($back) ?>">
+                <div class="input-group input-group-sm">
+                  <select name="delivery_boy_id" class="form-select form-select-sm" style="font-size: 0.75rem;">
+                    <option value="">-- Remove / Reassign --</option>
+                    <?php foreach ($deliveryBoys as $r): ?>
+                      <option value="<?= $r['id'] ?>" <?= (int)$o['delivery_boy_id'] === (int)$r['id'] ? 'selected' : '' ?>>
+                        <?= e($r['name']) ?> (<?= (int)$r['active_deliveries'] === 0 ? '🟢 Free' : (int)$r['active_deliveries'] . ' active' ?>)
+                      </option>
+                    <?php endforeach; ?>
+                  </select>
+                  <button class="btn btn-outline-secondary" title="Save Rider"><i class="bi bi-arrow-repeat"></i></button>
+                </div>
+              </form>
+            </div>
+          <?php else: ?>
+            <div class="p-2 rounded bg-warning bg-opacity-10 border border-warning">
+              <span class="badge bg-warning text-dark mb-1"><i class="bi bi-exclamation-triangle-fill me-1"></i>No Rider</span>
+              <form method="post" class="d-flex flex-column gap-1">
+                <?= csrf_field() ?>
+                <input type="hidden" name="action" value="assign_rider">
+                <input type="hidden" name="order_id" value="<?= $o['id'] ?>">
+                <input type="hidden" name="back" value="<?= e($back) ?>">
+                <select name="delivery_boy_id" class="form-select form-select-sm" required style="font-size: 0.75rem;">
+                  <option value="">-- Select Available Rider --</option>
+                  <?php foreach ($deliveryBoys as $r): ?>
+                    <option value="<?= $r['id'] ?>">
+                      <?= e($r['name']) ?> (<?= (int)$r['active_deliveries'] === 0 ? '🟢 Free' : '🟡 ' . (int)$r['active_deliveries'] . ' busy' ?>)
+                    </option>
+                  <?php endforeach; ?>
+                </select>
+                <button class="btn btn-sm btn-danger fw-semibold">
+                  <i class="bi bi-send-check-fill me-1"></i> Assign Rider
+                </button>
+              </form>
+            </div>
+          <?php endif; ?>
+        </td>
+
         <td class="align-top small text-muted"><?= e(date('d M Y, h:i A', strtotime($o['created_at']))) ?></td>
         <td class="align-top">
           <form method="post" class="d-flex gap-1">
@@ -180,7 +287,7 @@ require __DIR__ . '/../includes/header.php';
         </td>
       </tr>
     <?php endforeach; if (!$orders): ?>
-      <tr><td colspan="6" class="text-center text-muted py-5">No orders found.</td></tr>
+      <tr><td colspan="7" class="text-center text-muted py-5">No orders found.</td></tr>
     <?php endif; ?>
     </tbody>
   </table>

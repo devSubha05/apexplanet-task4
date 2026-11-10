@@ -28,6 +28,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             flash('danger', 'You do not have permission to modify this order.');
         }
+    } elseif ($action === 'assign_rider') {
+        $riderId = !empty($_POST['delivery_boy_id']) ? (int)$_POST['delivery_boy_id'] : null;
+        $chk = $pdo->prepare('SELECT COUNT(*) FROM order_items oi JOIN foods f ON f.id=oi.food_id WHERE oi.order_id=? AND f.shop_id=?');
+        $chk->execute([$oid, $shop['id']]);
+        if ($chk->fetchColumn() > 0) {
+            $pdo->prepare("UPDATE orders SET delivery_boy_id=?, status = IF(status='pending', 'preparing', status) WHERE id=?")
+                ->execute([$riderId, $oid]);
+            if ($riderId) {
+                $rName = $pdo->query("SELECT name FROM users WHERE id = $riderId")->fetchColumn();
+                flash('success', "Assigned $rName to Order #$oid! Order moved to Preparing.");
+            } else {
+                flash('warning', "Delivery partner unassigned from Order #$oid.");
+            }
+        } else {
+            flash('danger', 'You do not have permission to modify this order.');
+        }
     }
     redirect('shop/index.php');
 }
@@ -70,20 +86,40 @@ if ($searchFilter !== '') {
 $whereClause = implode(' AND ', $where);
 
 $ordersQuery = $pdo->prepare("SELECT DISTINCT
-    o.id, o.user_id, o.status, o.payment_method, o.delivery_address,
+    o.id, o.user_id, o.status, o.payment_method, o.delivery_address, o.delivery_boy_id,
     o.phone AS order_phone, o.note, o.created_at,
     u.name AS customer_name, u.email AS customer_email,
+    d.name AS delivery_boy_name, d.phone AS delivery_boy_phone,
     SUM(oi.price * oi.quantity) AS shop_subtotal
 FROM orders o
 JOIN users u ON u.id = o.user_id
+LEFT JOIN users d ON d.id = o.delivery_boy_id
 JOIN order_items oi ON oi.order_id = o.id
 JOIN foods f ON f.id = oi.food_id
 WHERE $whereClause
-GROUP BY o.id, o.user_id, o.status, o.payment_method, o.delivery_address, o.phone, o.note, o.created_at, u.name, u.email
+GROUP BY o.id, o.user_id, o.status, o.payment_method, o.delivery_address, o.delivery_boy_id, o.phone, o.note, o.created_at, u.name, u.email, d.name, d.phone
 ORDER BY o.id DESC
 LIMIT 20");
 $ordersQuery->execute($args);
 $orders = $ordersQuery->fetchAll();
+
+// Fetch live delivery partners and their active workloads
+$ridersStmt = $pdo->query("SELECT u.id, u.name, u.email, u.phone, u.address, u.avatar,
+    COUNT(CASE WHEN o.status IN ('preparing', 'out_for_delivery') THEN o.id END) AS active_deliveries,
+    COUNT(CASE WHEN o.status = 'delivered' AND DATE(o.delivered_at) = CURDATE() THEN o.id END) AS delivered_today
+FROM users u
+LEFT JOIN orders o ON o.delivery_boy_id = u.id
+WHERE u.role = 'delivery' AND u.status = 'active'
+GROUP BY u.id, u.name, u.email, u.phone, u.address, u.avatar
+ORDER BY active_deliveries ASC, u.name ASC");
+$deliveryBoys = $ridersStmt->fetchAll();
+
+$unassignedCount = 0;
+foreach ($orders as $o) {
+    if (empty($o['delivery_boy_id']) && in_array($o['status'], ['pending', 'preparing'], true)) {
+        $unassignedCount++;
+    }
+}
 
 $orderIds = array_column($orders, 'id');
 $itemsByOrder = [];
@@ -172,7 +208,95 @@ require __DIR__ . '/../includes/header.php';
   </div>
 </div>
 
-<div class="card border-0 shadow-sm mb-4">
+<?php if ($unassignedCount > 0): ?>
+  <div class="alert alert-warning border-warning d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4 p-3 shadow-sm rounded-3">
+    <div class="d-flex align-items-center gap-3">
+      <div class="bg-warning text-dark p-2 rounded-circle fs-4">
+        <i class="bi bi-bicycle"></i>
+      </div>
+      <div>
+        <strong class="d-block text-dark fs-6">Attention: <?= $unassignedCount ?> Incoming Order<?= $unassignedCount === 1 ? '' : 's' ?> Need a Delivery Partner!</strong>
+        <span class="small text-muted">Check available delivery boys below and assign a free rider so food can be picked up promptly.</span>
+      </div>
+    </div>
+    <a href="#ordersTable" class="btn btn-warning btn-sm fw-bold px-3">
+      <i class="bi bi-arrow-down-circle me-1"></i> Assign Delivery Boy Now
+    </a>
+  </div>
+<?php endif; ?>
+
+<!-- Live Available Delivery Boys Section -->
+<div class="card border-0 shadow-sm mb-4" style="border-radius: 0.9rem; overflow: hidden;">
+  <div class="card-header bg-white py-3 border-0 d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <div>
+      <h5 class="mb-0 fw-bold text-dark">
+        <i class="bi bi-bicycle text-danger me-2"></i>Live Delivery Boys Fleet &amp; Availability
+      </h5>
+      <small class="text-muted">Check which delivery boys are free or busy before assigning incoming kitchen orders</small>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <span class="badge bg-success bg-opacity-10 text-success border border-success px-3 py-2">
+        <i class="bi bi-circle-fill me-1" style="font-size: 0.55rem;"></i> <?= count($deliveryBoys) ?> Active Partner<?= count($deliveryBoys) === 1 ? '' : 's' ?>
+      </span>
+    </div>
+  </div>
+  <div class="card-body bg-light border-top">
+    <div class="row g-3">
+      <?php if (empty($deliveryBoys)): ?>
+        <div class="col-12 text-center text-muted py-3">
+          No delivery partners registered yet. <a href="<?= url('admin/users.php') ?>">Create delivery accounts in Admin panel</a>.
+        </div>
+      <?php else: ?>
+        <?php foreach ($deliveryBoys as $dboy):
+          $isFree = ((int)$dboy['active_deliveries'] === 0);
+        ?>
+        <div class="col-12 col-md-6 col-lg-6 col-xl-6">
+          <div class="card border-0 shadow-sm h-100 bg-white">
+            <div class="card-body p-3">
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <div class="d-flex align-items-center gap-2">
+                  <div class="position-relative">
+                    <img src="<?= e(avatar_url($dboy)) ?>" class="rounded-circle border" width="46" height="46" alt="<?= e($dboy['name']) ?>">
+                    <span class="position-absolute bottom-0 end-0 p-1 <?= $isFree ? 'bg-success' : 'bg-warning' ?> border border-white rounded-circle" title="<?= $isFree ? 'Free & Ready' : 'On Delivery' ?>"></span>
+                  </div>
+                  <div>
+                    <strong class="d-block text-dark fs-6"><?= e($dboy['name']) ?></strong>
+                    <small class="text-muted"><i class="bi bi-geo-alt"></i> <?= e($dboy['address'] ?: 'Durgapur Hub') ?></small>
+                  </div>
+                </div>
+                <div class="text-end">
+                  <?php if ($isFree): ?>
+                    <span class="badge bg-success bg-opacity-10 text-success border border-success px-2 py-1">
+                      <i class="bi bi-check-circle-fill me-1"></i> Available / Free
+                    </span>
+                    <div class="text-success small fw-semibold mt-1" style="font-size: 0.75rem;">Ready for pickup</div>
+                  <?php else: ?>
+                    <span class="badge bg-warning bg-opacity-10 text-warning border border-warning px-2 py-1">
+                      <i class="bi bi-bicycle me-1"></i> Busy (<?= (int)$dboy['active_deliveries'] ?> active)
+                    </span>
+                    <div class="text-muted small mt-1" style="font-size: 0.75rem;">In transit</div>
+                  <?php endif; ?>
+                </div>
+              </div>
+              <div class="d-flex justify-content-between align-items-center pt-2 border-top small">
+                <span>
+                  <i class="bi bi-telephone-fill text-success me-1"></i>
+                  <a href="tel:<?= e($dboy['phone']) ?>" class="text-decoration-none fw-semibold"><?= e($dboy['phone']) ?></a>
+                </span>
+                <span class="badge bg-light text-dark border">
+                  <?= (int)$dboy['delivered_today'] ?> delivered today
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <?php endforeach; ?>
+      <?php endif; ?>
+    </div>
+  </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4" id="ordersTable">
   <div class="card-header bg-white py-3 border-0">
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
       <div>
@@ -213,16 +337,17 @@ require __DIR__ . '/../includes/header.php';
       <thead class="table-light">
         <tr>
           <th style="width: 100px;">Order #</th>
-          <th style="min-width: 230px;"><i class="bi bi-person-fill text-primary me-1"></i> Who Ordered (Customer)</th>
-          <th style="min-width: 320px;"><i class="bi bi-egg-fried text-danger me-1"></i> Which Food Ordered</th>
-          <th style="min-width: 130px;">Shop Amount</th>
-          <th style="min-width: 200px;">Status &amp; Action</th>
+          <th style="min-width: 230px;"><i class="bi bi-person-fill text-primary me-1"></i> Customer Details</th>
+          <th style="min-width: 300px;"><i class="bi bi-egg-fried text-danger me-1"></i> Ordered Food</th>
+          <th style="min-width: 120px;">Amount</th>
+          <th style="min-width: 230px;"><i class="bi bi-bicycle text-danger me-1"></i> Delivery Partner</th>
+          <th style="min-width: 160px;">Status &amp; Action</th>
         </tr>
       </thead>
       <tbody>
       <?php if (empty($orders)): ?>
         <tr>
-          <td colspan="5" class="text-center py-5">
+          <td colspan="6" class="text-center py-5">
             <div class="py-4">
               <i class="bi bi-inbox text-muted display-4"></i>
               <h5 class="mt-3 text-muted">No orders found for your shop.</h5>
@@ -289,6 +414,58 @@ require __DIR__ . '/../includes/header.php';
           <td class="align-top py-3">
             <div class="fs-5 fw-bold text-success"><?= money($o['shop_subtotal']) ?></div>
             <div class="small text-muted">from <?= count($itemsByOrder[$o['id']] ?? []) ?> dish item(s)</div>
+          </td>
+
+          <td class="align-top py-3">
+            <?php if (!empty($o['delivery_boy_id'])): ?>
+              <div class="p-2 rounded bg-light border">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                  <i class="bi bi-bicycle fs-5 text-primary"></i>
+                  <div>
+                    <strong class="text-dark d-block"><?= e($o['delivery_boy_name']) ?></strong>
+                    <a href="tel:<?= e($o['delivery_boy_phone']) ?>" class="small text-muted text-decoration-none">
+                      <i class="bi bi-telephone-fill text-success me-1"></i><?= e($o['delivery_boy_phone']) ?>
+                    </a>
+                  </div>
+                </div>
+                <form method="post" class="mt-2">
+                  <?= csrf_field() ?>
+                  <input type="hidden" name="action" value="assign_rider">
+                  <input type="hidden" name="order_id" value="<?= $o['id'] ?>">
+                  <div class="input-group input-group-sm">
+                    <select name="delivery_boy_id" class="form-select form-select-sm" style="font-size: 0.78rem;">
+                      <option value="">-- Remove / Reassign --</option>
+                      <?php foreach ($deliveryBoys as $r): ?>
+                        <option value="<?= $r['id'] ?>" <?= (int)$o['delivery_boy_id'] === (int)$r['id'] ? 'selected' : '' ?>>
+                          <?= e($r['name']) ?> (<?= (int)$r['active_deliveries'] === 0 ? '🟢 Free' : '🟡 ' . (int)$r['active_deliveries'] . ' active' ?>)
+                        </option>
+                      <?php endforeach; ?>
+                    </select>
+                    <button class="btn btn-outline-secondary" title="Update Rider"><i class="bi bi-arrow-repeat"></i></button>
+                  </div>
+                </form>
+              </div>
+            <?php else: ?>
+              <div class="p-2 rounded bg-warning bg-opacity-10 border border-warning">
+                <span class="badge bg-warning text-dark mb-1"><i class="bi bi-exclamation-triangle-fill me-1"></i>No Rider Assigned</span>
+                <form method="post" class="d-flex flex-column gap-1 mt-1">
+                  <?= csrf_field() ?>
+                  <input type="hidden" name="action" value="assign_rider">
+                  <input type="hidden" name="order_id" value="<?= $o['id'] ?>">
+                  <select name="delivery_boy_id" class="form-select form-select-sm" required style="font-size: 0.78rem;">
+                    <option value="">-- Check &amp; Assign Rider --</option>
+                    <?php foreach ($deliveryBoys as $r): ?>
+                      <option value="<?= $r['id'] ?>">
+                        <?= e($r['name']) ?> (<?= (int)$r['active_deliveries'] === 0 ? '🟢 Free' : '🟡 ' . (int)$r['active_deliveries'] . ' busy' ?>)
+                      </option>
+                    <?php endforeach; ?>
+                  </select>
+                  <button class="btn btn-sm btn-danger fw-semibold mt-1">
+                    <i class="bi bi-send-check-fill me-1"></i> Assign Available Rider
+                  </button>
+                </form>
+              </div>
+            <?php endif; ?>
           </td>
 
           <td class="align-top py-3">

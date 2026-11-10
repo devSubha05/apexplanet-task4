@@ -52,6 +52,14 @@ function require_shop_owner(): array {
     if ($u['role'] !== 'shop_owner' && $u['role'] !== 'admin') { http_response_code(403); exit('403 - Shop owners and admins only.'); }
     return $u;
 }
+function require_delivery(): array {
+    $u = require_login();
+    if ($u['role'] !== 'delivery' && $u['role'] !== 'admin') {
+        http_response_code(403);
+        exit('403 - Delivery staff and admins only.');
+    }
+    return $u;
+}
 function owner_shop(int $uid): ?array {
     $s = db()->prepare('SELECT * FROM shops WHERE owner_id=?');
     $s->execute([$uid]);
@@ -107,9 +115,43 @@ function cart_count(): int { return array_sum(cart()); }
 function paginate(int $total, int $page, int $per, string $baseQuery = ''): string {
     $pages = (int)ceil($total / $per);
     if ($pages <= 1) return '';
-    $h = '<nav><ul class="pagination justify-content-center flex-wrap">';
-    for ($i = 1; $i <= $pages; $i++) {
-        $h .= '<li class="page-item' . ($i === $page ? ' active' : '') . '"><a class="page-link" href="?' . $baseQuery . 'page=' . $i . '">' . $i . '</a></li>';
+
+    $h = '<nav aria-label="Page navigation"><ul class="pagination justify-content-center flex-wrap shadow-sm rounded-pill p-1 bg-white d-inline-flex border">';
+
+    // Previous Arrow (shown when on page > 1)
+    if ($page > 1) {
+        $prev = $page - 1;
+        $h .= '<li class="page-item"><a class="page-link" href="?' . $baseQuery . 'page=' . $prev . '" aria-label="Previous" title="Previous page"><span aria-hidden="true">&laquo;</span></a></li>';
     }
-    return $h . '</ul></nav>';
+
+    // Determine window: show 1, 2, 3 on first pages then slide as user moves forward
+    if ($pages <= 3) {
+        $start = 1;
+        $end = $pages;
+    } else {
+        if ($page <= 3) {
+            $start = 1;
+            $end = 3;
+        } elseif ($page >= $pages) {
+            $start = max(1, $pages - 2);
+            $end = $pages;
+        } else {
+            $start = $page - 1;
+            $end = min($pages, $page + 1);
+        }
+    }
+
+    for ($i = $start; $i <= $end; $i++) {
+        $active = ($i === $page) ? ' active' : '';
+        $h .= '<li class="page-item' . $active . '"><a class="page-link" href="?' . $baseQuery . 'page=' . $i . '">' . $i . '</a></li>';
+    }
+
+    // Next Arrow (shown when more pages exist ahead)
+    if ($page < $pages) {
+        $next = $page + 1;
+        $h .= '<li class="page-item"><a class="page-link" href="?' . $baseQuery . 'page=' . $next . '" aria-label="Next" title="Next page"><span aria-hidden="true">&raquo;</span></a></li>';
+    }
+
+    $h .= '</ul></nav>';
+    return $h;
 }

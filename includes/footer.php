@@ -1,5 +1,5 @@
 </main>
-<footer class="rx-footer py-4 mt-auto text-center">
+<footer class="rx-footer py-4 mt-auto text-center <?= !empty($deliveryArea) ? 'delivery-footer' : '' ?>">
   <div class="container small">&copy; <?= date('Y') ?> <?= APP_NAME ?> &middot; ApexPlanet Internship Task 4</div>
 </footer>
 

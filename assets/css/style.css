@@ -31,3 +31,24 @@ main.main-content{flex:1 0 auto}
 .status-pending{background:#6c757d}.status-preparing{background:#fd7e14}.status-out_for_delivery{background:#0d6efd}.status-delivered{background:#198754}.status-cancelled{background:#dc3545}
 .table-responsive{border-radius:.6rem;background:#fff}
 :focus-visible{outline:3px solid var(--rx-gold);outline-offset:2px}
+
+/* Unified Delivery Portal Header & Footer */
+.delivery-nav, .delivery-footer {
+  background: var(--rx-dark) !important;
+  color: #fff !important;
+}
+.delivery-nav .navbar-brand {
+  color: #fff !important;
+}
+.delivery-nav .nav-link {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+.delivery-nav .nav-link:hover,
+.delivery-nav .nav-link.active {
+  color: var(--rx-gold) !important;
+}
+.delivery-footer {
+  background: var(--rx-dark) !important;
+  color: #e9d9c4 !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}

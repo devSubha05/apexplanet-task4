@@ -7,6 +7,21 @@ if ($uri !== '/' && is_file($file)) {
     return false;
 }
 
+// Auto-heal misplaced static assets from section sub-paths (e.g. /delivery/assets/... -> /assets/...)
+if (preg_match('#^/(?:admin|shop|delivery)/(assets|uploads)/(.*)$#', $uri, $m)) {
+    $staticTarget = __DIR__ . '/' . $m[1] . '/' . $m[2];
+    if (is_file($staticTarget)) {
+        header('Location: /' . $m[1] . '/' . $m[2], true, 302);
+        return true;
+    }
+}
+
+// Auto-heal duplicate subfolder paths (e.g. /delivery/delivery/... -> /delivery/...)
+if (preg_match('#^/(admin|shop|delivery)/\1/(.*)$#', $uri, $m)) {
+    header('Location: /' . $m[1] . '/' . $m[2], true, 302);
+    return true;
+}
+
 if (file_exists(__DIR__ . '/includes/db.php')) {
     require_once __DIR__ . '/includes/db.php';
     if (function_exists('ensure_mariadb_running')) {
@@ -16,6 +31,11 @@ if (file_exists(__DIR__ . '/includes/db.php')) {
 
 if ($uri === '/shop' || $uri === '/shop/') {
     require __DIR__ . '/shop/index.php';
+    return true;
+}
+
+if ($uri === '/delivery' || $uri === '/delivery/') {
+    require __DIR__ . '/delivery/index.php';
     return true;
 }
 

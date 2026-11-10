@@ -6,7 +6,7 @@ define('DB_PASS', '');
 
 define('APP_NAME', 'Rasoi Express');
 $scriptDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? ''));
-$scriptDir = preg_replace('#/(admin|shop|includes|config|assets|uploads)$#', '', $scriptDir);
+$scriptDir = preg_replace('#(/(admin|shop|delivery|includes|config|assets|uploads))+$#', '', $scriptDir);
 $detectedBase = ($scriptDir === '/' || $scriptDir === '.' || $scriptDir === '') ? '' : rtrim($scriptDir, '/');
 define('BASE_URL', $detectedBase);
 

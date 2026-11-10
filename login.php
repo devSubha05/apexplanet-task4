@@ -1,6 +1,11 @@
 <?php
 require_once __DIR__ . '/includes/auth.php';
-if (current_user()) redirect('index.php');
+if ($u = current_user()) {
+    if ($u['role'] === 'shop_owner') redirect('shop/index.php');
+    if ($u['role'] === 'delivery') redirect('delivery/index.php');
+    if ($u['role'] === 'admin') redirect('admin/index.php');
+    redirect('index.php');
+}
 $pageTitle = 'Log in';
 $error = '';
 
@@ -23,7 +28,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 unset($_SESSION['fails'], $_SESSION['lock_until']);
                 login_user($u);
                 flash('success', 'Welcome back, ' . ($u['name'] ?? 'user') . '!');
-                redirect('index.php');
+                
+                // Role-based direct redirection:
+                if ($u['role'] === 'shop_owner') {
+                    redirect('shop/index.php');
+                } elseif ($u['role'] === 'delivery') {
+                    redirect('delivery/index.php');
+                } elseif ($u['role'] === 'admin') {
+                    redirect('admin/index.php');
+                } else {
+                    redirect('index.php');
+                }
             }
         } else {
             $_SESSION['fails'] = ($_SESSION['fails'] ?? 0) + 1;

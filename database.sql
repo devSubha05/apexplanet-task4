@@ -10,7 +10,7 @@ CREATE TABLE users (
   phone VARCHAR(15) DEFAULT NULL,
   address VARCHAR(255) DEFAULT NULL,
   password_hash VARCHAR(255) NOT NULL,
-  role ENUM('user','admin','shop_owner') NOT NULL DEFAULT 'user',
+  role ENUM('user','admin','shop_owner','delivery') NOT NULL DEFAULT 'user',
   status ENUM('active','blocked') NOT NULL DEFAULT 'active',
   avatar VARCHAR(255) DEFAULT NULL,
   last_login_at DATETIME DEFAULT NULL,
@@ -63,11 +63,15 @@ CREATE TABLE orders (
   payment_method ENUM('cod','upi') NOT NULL DEFAULT 'cod',
   delivery_address VARCHAR(255) NOT NULL,
   pincode VARCHAR(10) DEFAULT NULL,
+  delivery_boy_id INT UNSIGNED DEFAULT NULL,
   phone VARCHAR(15) NOT NULL,
   note VARCHAR(255) DEFAULT NULL,
+  delivered_at DATETIME DEFAULT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_orders_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  CONSTRAINT fk_orders_delivery_boy FOREIGN KEY (delivery_boy_id) REFERENCES users(id) ON DELETE SET NULL,
   INDEX idx_orders_user (user_id),
+  INDEX idx_orders_delivery_boy (delivery_boy_id),
   INDEX idx_orders_status (status),
   INDEX idx_orders_created (created_at)
 ) ENGINE=InnoDB;
@@ -95,11 +99,13 @@ CREATE TABLE password_resets (
   INDEX idx_reset_token (token_hash)
 ) ENGINE=InnoDB;
 
--- Seed: admin@rasoi.test / Admin@123   |   demo@rasoi.test / User@123   |   shop@rasoi.test / Shop@123
+-- Seed: admin@rasoi.test / Admin@123 | demo@rasoi.test / User@123 | shop@rasoi.test / Shop@123 | delivery@rasoi.test / Delivery@123
 INSERT INTO users (name,email,phone,address,password_hash,role,last_login_at) VALUES
 ('Site Admin','admin@rasoi.test','9000000001','Admin Office, Durgapur','$2b$12$CknTFsb.Y1dYv8tM4rUeR.4553FP3FaCHbQLs9qPYLnMIyOGvMFwC','admin',NOW()),
 ('Demo User','demo@rasoi.test','9000000002','12 City Centre, Durgapur','$2b$12$yK68m37tJAtL/WmHQUQjQOnIWLLbvloMTN.k0BKmnnzCz9QSybv76','user',NOW()),
-('Shop Owner','shop@rasoi.test','9000000003','45 Food Street, Durgapur','$2y$10$6PfBFdwazSzejElbxj1Xue7s/FOTB3.1x6pJTuRkdzXB4PW71rWBG','shop_owner',NOW());
+('Shop Owner','shop@rasoi.test','9000000003','45 Food Street, Durgapur','$2y$10$6PfBFdwazSzejElbxj1Xue7s/FOTB3.1x6pJTuRkdzXB4PW71rWBG','shop_owner',NOW()),
+('Raju Rider (Delivery)','delivery@rasoi.test','9000000004','City Centre Hub, Durgapur','$2y$10$tZz27lWlX3rGhy0u7g9m4eEhy2v7L3PqSg54pW1wBfq9bX2jN9n/O','delivery',NOW()),
+('Amit Express (Delivery)','delivery2@rasoi.test','9000000005','Benachity Hub, Durgapur','$2y$10$tZz27lWlX3rGhy0u7g9m4eEhy2v7L3PqSg54pW1wBfq9bX2jN9n/O','delivery',NOW());
 
 INSERT INTO shops (name,description,address,phone,owner_id) VALUES
 ('Durgapur Kitchen','Authentic Bengali and North Indian cuisine made fresh to order.','45 Food Street, Durgapur','9000000003',

@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 if (isset($_GET['id'])) {
     $oid = (int)$_GET['id'];
-    $s = db()->prepare('SELECT * FROM orders WHERE id=? AND user_id=?'); $s->execute([$oid, $me['id']]);
+    $s = db()->prepare('SELECT o.*, d.name AS delivery_boy_name, d.phone AS delivery_boy_phone FROM orders o LEFT JOIN users d ON d.id=o.delivery_boy_id WHERE o.id=? AND o.user_id=?'); $s->execute([$oid, $me['id']]);
     $o = $s->fetch();
     if (!$o) { http_response_code(404); exit('Order not found.'); }
     $it = db()->prepare('SELECT * FROM order_items WHERE order_id=?'); $it->execute([$oid]);
@@ -37,6 +37,14 @@ if (isset($_GET['id'])) {
       <p class="mb-1"><span class="badge bg-light text-dark border"><i class="bi bi-geo-alt text-danger me-1"></i>PIN: <?= e($o['pincode']) ?></span></p>
     <?php endif; ?>
     <p class="mb-2"><i class="bi bi-telephone"></i> <?= e($o['phone']) ?></p>
+    <?php if (!empty($o['delivery_boy_name'])): ?>
+      <div class="alert alert-info py-2 px-3 small mt-2 mb-2">
+        <i class="bi bi-bicycle me-1"></i><strong>Delivery Partner:</strong> <?= e($o['delivery_boy_name']) ?>
+        <?php if ($o['status'] === 'out_for_delivery'): ?>
+          <br><a href="tel:<?= e($o['delivery_boy_phone']) ?>" class="btn btn-sm btn-link p-0 text-decoration-none mt-1 fw-bold text-primary"><i class="bi bi-telephone-fill me-1"></i>Call Partner: <?= e($o['delivery_boy_phone']) ?></a>
+        <?php endif; ?>
+      </div>
+    <?php endif; ?>
     <?php if ($o['note']): ?><p class="small text-muted">Note: <?= e($o['note']) ?></p><?php endif; ?>
     <?php if ($o['status'] === 'pending'): ?>
       <form method="post" data-confirm="Cancel this order?"><?= csrf_field() ?><input type="hidden" name="order_id" value="<?= $o['id'] ?>"><button class="btn btn-outline-danger btn-sm">Cancel order</button></form>

@@ -1,4 +1,4 @@
-<?php require_once __DIR__ . '/auth.php'; $me = current_user(); $isAdminArea = !empty($adminArea); $isShopArea = !empty($shopArea); ?>
+<?php require_once __DIR__ . '/auth.php'; $me = current_user(); $isAdminArea = !empty($adminArea); $isShopArea = !empty($shopArea); $isDeliveryArea = !empty($deliveryArea); ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,9 +10,9 @@
 <link href="<?= url('assets/css/style.css') ?>" rel="stylesheet">
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark rx-nav sticky-top">
+<nav class="navbar navbar-expand-lg navbar-dark rx-nav <?= $isDeliveryArea ? 'delivery-nav' : '' ?> sticky-top">
   <div class="container">
-    <a class="navbar-brand fw-bold" href="<?= url($isAdminArea ? 'admin/index.php' : ($isShopArea ? 'shop/index.php' : 'index.php')) ?>"><i class="bi bi-egg-fried me-1"></i><?= APP_NAME ?><?= $isAdminArea ? ' <small class="opacity-75">Admin</small>' : ($isShopArea ? ' <small class="opacity-75">Shop Portal</small>' : '') ?></a>
+    <a class="navbar-brand fw-bold" href="<?= url($isAdminArea ? 'admin/index.php' : ($isShopArea ? 'shop/index.php' : ($isDeliveryArea ? 'delivery/index.php' : 'index.php'))) ?>"><i class="bi bi-egg-fried me-1"></i><?= APP_NAME ?><?= $isAdminArea ? ' <small class="opacity-75">Admin</small>' : ($isShopArea ? ' <small class="opacity-75">Shop Portal</small>' : ($isDeliveryArea ? ' <small class="opacity-75 text-warning"><i class="bi bi-bicycle me-1"></i>Delivery Portal</small>' : '')) ?></a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav"><span class="navbar-toggler-icon"></span></button>
     <div class="collapse navbar-collapse" id="nav">
       <ul class="navbar-nav me-auto">
@@ -23,11 +23,19 @@
           <li class="nav-item"><a class="nav-link" href="<?= url('admin/orders.php') ?>">Orders</a></li>
           <li class="nav-item"><a class="nav-link" href="<?= url('admin/users.php') ?>">Users</a></li>
           <li class="nav-item"><a class="nav-link text-warning" href="<?= url('shop/index.php') ?>"><i class="bi bi-shop me-1"></i>Shop Portal</a></li>
+          <li class="nav-item"><a class="nav-link text-info" href="<?= url('delivery/index.php') ?>"><i class="bi bi-bicycle me-1"></i>Delivery Portal</a></li>
           <li class="nav-item"><a class="nav-link" href="<?= url('index.php') ?>">View site</a></li>
         <?php elseif ($isShopArea): ?>
           <li class="nav-item"><a class="nav-link" href="<?= url('shop/index.php') ?>"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a></li>
           <li class="nav-item"><a class="nav-link" href="<?= url('shop/orders.php') ?>"><i class="bi bi-receipt me-1"></i>Orders</a></li>
           <li class="nav-item"><a class="nav-link" href="<?= url('shop/foods.php') ?>"><i class="bi bi-egg-fried me-1"></i>My Dishes</a></li>
+          <li class="nav-item"><a class="nav-link" href="<?= url('index.php') ?>" target="_blank"><i class="bi bi-box-arrow-up-right me-1"></i>View Site</a></li>
+        <?php elseif ($isDeliveryArea): ?>
+          <?php $currentScript = basename($_SERVER['PHP_SELF'] ?? ''); ?>
+          <li class="nav-item"><a class="nav-link <?= $currentScript === 'index.php' ? 'active text-warning fw-bold' : '' ?>" href="<?= url('delivery/index.php') ?>"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link <?= in_array($currentScript, ['active_tasks.php', 'active_deliveries.php']) ? 'active text-warning fw-bold' : '' ?>" href="<?= url('delivery/active_tasks.php') ?>"><i class="bi bi-bicycle me-1"></i>Active Tasks</a></li>
+          <li class="nav-item"><a class="nav-link <?= in_array($currentScript, ['available_orders.php', 'available_to_claim.php']) ? 'active text-warning fw-bold' : '' ?>" href="<?= url('delivery/available_orders.php') ?>"><i class="bi bi-box-seam me-1"></i>Available to Claim</a></li>
+          <li class="nav-item"><a class="nav-link <?= in_array($currentScript, ['history.php', 'completed_orders.php']) ? 'active text-warning fw-bold' : '' ?>" href="<?= url('delivery/history.php') ?>"><i class="bi bi-clock-history me-1"></i>Complete Orders</a></li>
           <li class="nav-item"><a class="nav-link" href="<?= url('index.php') ?>" target="_blank"><i class="bi bi-box-arrow-up-right me-1"></i>View Site</a></li>
         <?php else: ?>
           <li class="nav-item"><a class="nav-link" href="<?= url('index.php') ?>">Menu</a></li>
@@ -37,11 +45,12 @@
             <li class="nav-item"><a class="nav-link" href="<?= url('orders.php') ?>">My orders</a></li>
             <?php if ($me['role'] === 'admin'): ?><li class="nav-item"><a class="nav-link" href="<?= url('admin/index.php') ?>">Admin panel</a></li><?php endif; ?>
             <?php if ($me['role'] === 'shop_owner' || $me['role'] === 'admin'): ?><li class="nav-item"><a class="nav-link text-warning fw-semibold" href="<?= url('shop/index.php') ?>"><i class="bi bi-shop me-1"></i><?= $me['role'] === 'admin' ? 'Shop Portal' : 'My Shop' ?></a></li><?php endif; ?>
+            <?php if ($me['role'] === 'delivery' || $me['role'] === 'admin'): ?><li class="nav-item"><a class="nav-link text-warning fw-semibold" href="<?= url('delivery/index.php') ?>"><i class="bi bi-bicycle me-1"></i>Delivery Portal</a></li><?php endif; ?>
           <?php endif; ?>
         <?php endif; ?>
       </ul>
       <ul class="navbar-nav align-items-lg-center gap-lg-2">
-        <?php if (!$isAdminArea && !$isShopArea): ?>
+        <?php if (!$isAdminArea && !$isShopArea && !$isDeliveryArea): ?>
         <li class="nav-item"><a class="nav-link" href="<?= url('cart.php') ?>"><i class="bi bi-bag"></i> Cart <span class="badge bg-warning text-dark"><?= cart_count() ?></span></a></li>
         <?php endif; ?>
         <?php if ($me): ?>

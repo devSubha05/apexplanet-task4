@@ -1,6 +1,11 @@
 <?php
 require_once __DIR__ . '/includes/auth.php';
-if (current_user()) redirect('index.php');
+if ($u = current_user()) {
+    if ($u['role'] === 'shop_owner') redirect('shop/index.php');
+    if ($u['role'] === 'delivery') redirect('delivery/index.php');
+    if ($u['role'] === 'admin') redirect('admin/index.php');
+    redirect('index.php');
+}
 $pageTitle = 'Sign up';
 $errors = []; $old = ['name' => '', 'email' => '', 'phone' => ''];
 

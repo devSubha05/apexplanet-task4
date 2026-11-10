@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($id === (int)$admin['id']) {
         flash('warning', 'You cannot change or delete your own account here.');
     } elseif ($action === 'role') {
-        $newRole = in_array($_POST['role'] ?? '', ['user', 'admin', 'shop_owner'], true) ? $_POST['role'] : 'user';
+        $newRole = in_array($_POST['role'] ?? '', ['user', 'admin', 'shop_owner', 'delivery'], true) ? $_POST['role'] : 'user';
         db()->prepare('UPDATE users SET role=? WHERE id=?')->execute([$newRole, $id]);
         flash('success', 'Role updated.');
     } elseif ($action === 'block') {
@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $q = trim($_GET['q'] ?? ''); $role = $_GET['role'] ?? ''; $page = max(1, (int)($_GET['page'] ?? 1));
 $where = ['1=1']; $args = [];
 if ($q !== '') { $where[] = '(u.name LIKE ? OR u.email LIKE ?)'; $args[] = "%$q%"; $args[] = "%$q%"; }
-if (in_array($role, ['user', 'admin', 'shop_owner'], true)) { $where[] = 'u.role=?'; $args[] = $role; }
+if (in_array($role, ['user', 'admin', 'shop_owner', 'delivery'], true)) { $where[] = 'u.role=?'; $args[] = $role; }
 $w = implode(' AND ', $where);
 $c = db()->prepare("SELECT COUNT(*) FROM users u WHERE $w"); $c->execute($args); $total = (int)$c->fetchColumn();
 $off = ($page - 1) * PER_PAGE;
@@ -37,7 +37,7 @@ require __DIR__ . '/../includes/header.php';
 <h2 class="mb-3">Users</h2>
 <form class="row g-2 mb-3" method="get">
   <div class="col-md-5"><input class="form-control" type="search" name="q" placeholder="Search name or email" value="<?= e($q) ?>"></div>
-  <div class="col-md-4"><select name="role" class="form-select" aria-label="Role"><option value="">All roles</option><option value="user" <?= $role === 'user' ? 'selected' : '' ?>>Customers</option><option value="admin" <?= $role === 'admin' ? 'selected' : '' ?>>Admins</option><option value="shop_owner" <?= $role === 'shop_owner' ? 'selected' : '' ?>>Shop Owners</option></select></div>
+  <div class="col-md-4"><select name="role" class="form-select" aria-label="Role"><option value="">All roles</option><option value="user" <?= $role === 'user' ? 'selected' : '' ?>>Customers</option><option value="shop_owner" <?= $role === 'shop_owner' ? 'selected' : '' ?>>Shop Owners</option><option value="delivery" <?= $role === 'delivery' ? 'selected' : '' ?>>Delivery Partners</option><option value="admin" <?= $role === 'admin' ? 'selected' : '' ?>>Admins</option></select></div>
   <div class="col-md-3 d-grid"><button class="btn btn-outline-rx">Filter</button></div>
 </form>
 <div class="table-responsive"><table class="table align-middle mb-0">
@@ -48,7 +48,7 @@ require __DIR__ . '/../includes/header.php';
       <td><img class="thumb rounded-circle" src="<?= e(avatar_url($u)) ?>" alt=""></td>
       <td><?= e($u['name']) ?><div class="small text-muted"><?= e($u['email']) ?></div></td>
       <td><form method="post" class="d-flex gap-1"><?= csrf_field() ?><input type="hidden" name="action" value="role"><input type="hidden" name="id" value="<?= $u['id'] ?>">
-        <select name="role" class="form-select form-select-sm" <?= $self ? 'disabled' : '' ?> aria-label="Role"><option value="user" <?= $u['role'] === 'user' ? 'selected' : '' ?>>Customer</option><option value="shop_owner" <?= $u['role'] === 'shop_owner' ? 'selected' : '' ?>>Shop Owner</option><option value="admin" <?= $u['role'] === 'admin' ? 'selected' : '' ?>>Admin</option></select>
+        <select name="role" class="form-select form-select-sm" <?= $self ? 'disabled' : '' ?> aria-label="Role"><option value="user" <?= $u['role'] === 'user' ? 'selected' : '' ?>>Customer</option><option value="shop_owner" <?= $u['role'] === 'shop_owner' ? 'selected' : '' ?>>Shop Owner</option><option value="delivery" <?= $u['role'] === 'delivery' ? 'selected' : '' ?>>Delivery Partner</option><option value="admin" <?= $u['role'] === 'admin' ? 'selected' : '' ?>>Admin</option></select>
         <?php if (!$self): ?><button class="btn btn-sm btn-outline-secondary">Set</button><?php endif; ?></form></td>
       <td><?= (int)$u['orders'] ?></td>
       <td class="small"><?= $u['last_login_at'] ? e(date('d M Y, h:i A', strtotime($u['last_login_at']))) : '&mdash;' ?></td>

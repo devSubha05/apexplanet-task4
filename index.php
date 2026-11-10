@@ -124,6 +124,6 @@ require __DIR__ . '/includes/header.php';
   </div>
   <?php endforeach; ?>
 </div>
-<div class="mt-4"><?= paginate($total, $page, PER_PAGE, $qs) ?></div>
+<div class="mt-4 text-center"><?= paginate($total, $page, PER_PAGE, $qs) ?></div>
 <?php endif; ?>
 <?php require __DIR__ . '/includes/footer.php'; ?>
