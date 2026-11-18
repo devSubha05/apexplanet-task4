@@ -51,7 +51,7 @@
       </ul>
       <ul class="navbar-nav align-items-lg-center gap-lg-2">
         <?php if (!$isAdminArea && !$isShopArea && !$isDeliveryArea): ?>
-        <li class="nav-item"><a class="nav-link" href="<?= url('cart.php') ?>"><i class="bi bi-bag"></i> Cart <span class="badge bg-warning text-dark"><?= cart_count() ?></span></a></li>
+        <li class="nav-item"><a class="nav-link" href="<?= url('cart.php') ?>"><i class="bi bi-bag"></i> Cart <span class="badge bg-warning text-dark cart-count-badge"><?= cart_count() ?></span></a></li>
         <?php endif; ?>
         <?php if ($me): ?>
           <li class="nav-item dropdown">

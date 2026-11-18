@@ -116,7 +116,7 @@ function paginate(int $total, int $page, int $per, string $baseQuery = ''): stri
     $pages = (int)ceil($total / $per);
     if ($pages <= 1) return '';
 
-    $h = '<nav aria-label="Page navigation"><ul class="pagination justify-content-center flex-wrap shadow-sm rounded-pill p-1 bg-white d-inline-flex border">';
+    $h = '<nav aria-label="Page navigation"><ul class="pagination justify-content-center flex-wrap shadow-sm rounded-pill d-inline-flex border">';
 
     // Previous Arrow (shown when on page > 1)
     if ($page > 1) {

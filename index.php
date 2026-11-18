@@ -58,37 +58,77 @@ require __DIR__ . '/includes/header.php';
   </div>
 <?php endif; ?>
 
-<form class="row g-2 mb-4" method="get">
-  <div class="col-12 col-md-3"><input class="form-control" type="search" name="q" placeholder="Search dishes" value="<?= e($q) ?>"></div>
+<form id="filterForm" class="row g-2 mb-4" method="get">
+  <div class="col-12 col-md-3">
+    <div class="input-group">
+      <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+      <input class="form-control border-start-0 ps-0" type="search" name="q" placeholder="Search dishes..." value="<?= e($q) ?>" onsearch="this.form.submit()">
+    </div>
+  </div>
   <div class="col-6 col-md-2">
-    <select name="shop" class="form-select" aria-label="Kitchen / Shop">
+    <select name="shop" class="form-select" aria-label="Kitchen / Shop" onchange="this.form.submit()">
       <option value="0">All Kitchens</option>
       <?php foreach ($allShops as $sh): ?><option value="<?= $sh['id'] ?>" <?= $shop === (int)$sh['id'] ? 'selected' : '' ?>><?= e($sh['name']) ?></option><?php endforeach; ?>
     </select>
   </div>
   <div class="col-6 col-md-2">
-    <select name="cat" class="form-select" aria-label="Category">
+    <select name="cat" class="form-select" aria-label="Category" onchange="this.form.submit()">
       <option value="0">All categories</option>
       <?php foreach ($cats as $c): ?><option value="<?= $c['id'] ?>" <?= $cat === (int)$c['id'] ? 'selected' : '' ?>><?= e($c['name']) ?></option><?php endforeach; ?>
     </select>
   </div>
   <div class="col-6 col-md-2">
-    <select name="type" class="form-select" aria-label="Veg or non-veg">
+    <select name="type" class="form-select" aria-label="Veg or non-veg" onchange="this.form.submit()">
       <option value="">Veg &amp; non-veg</option>
       <option value="veg" <?= $type === 'veg' ? 'selected' : '' ?>>Veg only</option>
       <option value="nonveg" <?= $type === 'nonveg' ? 'selected' : '' ?>>Non-veg only</option>
     </select>
   </div>
   <div class="col-6 col-md-2">
-    <select name="sort" class="form-select" aria-label="Sort">
+    <select name="sort" class="form-select" aria-label="Sort" onchange="this.form.submit()">
       <option value="new" <?= $sort === 'new' ? 'selected' : '' ?>>Newest</option>
       <option value="low" <?= $sort === 'low' ? 'selected' : '' ?>>Price: low to high</option>
       <option value="high" <?= $sort === 'high' ? 'selected' : '' ?>>Price: high to low</option>
       <option value="name" <?= $sort === 'name' ? 'selected' : '' ?>>Name A-Z</option>
     </select>
   </div>
-  <div class="col-12 col-md-1 d-grid"><button class="btn btn-rx" title="Search"><i class="bi bi-search"></i></button></div>
+  <div class="col-12 col-md-1 d-grid">
+    <?php if ($q !== '' || $cat > 0 || $shop > 0 || $type !== '' || $sort !== 'new'): ?>
+      <a href="<?= url('index.php') ?>" class="btn btn-outline-danger" title="Clear all filters">
+        <i class="bi bi-x-circle me-1"></i>Reset
+      </a>
+    <?php else: ?>
+      <span class="btn btn-outline-secondary disabled border text-muted" title="Automatic filter active">
+        <i class="bi bi-funnel-fill text-danger me-1"></i>Filter
+      </span>
+    <?php endif; ?>
+  </div>
 </form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('filterForm');
+  if (!form) return;
+
+  const searchInput = form.querySelector('input[name="q"]');
+  if (searchInput) {
+    if (sessionStorage.getItem('rx_search_focused') === '1') {
+      sessionStorage.removeItem('rx_search_focused');
+      searchInput.focus();
+      const len = searchInput.value.length;
+      searchInput.setSelectionRange(len, len);
+    }
+    let debounceTimer;
+    searchInput.addEventListener('input', function() {
+      sessionStorage.setItem('rx_search_focused', '1');
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(function() {
+        form.submit();
+      }, 500);
+    });
+  }
+});
+</script>
 
 <?php if (!$foods): ?>
   <div class="text-center text-muted py-5">No dishes match your search. <a href="<?= url('index.php') ?>">Clear filters</a></div>
@@ -114,9 +154,12 @@ require __DIR__ . '/includes/header.php';
         <p class="card-text small text-muted flex-grow-1"><?= e($f['description']) ?></p>
         <div class="d-flex justify-content-between align-items-center mt-2">
           <strong><?= money($f['price']) ?></strong>
-          <form method="post" action="<?= url('cart.php') ?>">
-            <?= csrf_field() ?><input type="hidden" name="action" value="add"><input type="hidden" name="food_id" value="<?= $f['id'] ?>">
-            <button class="btn btn-sm btn-rx"><i class="bi bi-plus-lg"></i> Add</button>
+          <form method="post" action="<?= url('cart.php') ?>" class="add-to-cart-form">
+            <?= csrf_field() ?>
+            <input type="hidden" name="action" value="add">
+            <input type="hidden" name="food_id" value="<?= $f['id'] ?>">
+            <input type="hidden" name="return_url" value="<?= e($_SERVER['REQUEST_URI'] ?? url('index.php')) ?>">
+            <button class="btn btn-sm btn-rx add-to-cart-btn"><i class="bi bi-plus-lg"></i> Add</button>
           </form>
         </div>
       </div>

@@ -9,15 +9,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $cart = $_SESSION['cart'] ?? [];
 
     if ($action === 'add' && $id > 0) {
+        $msg = '';
         $s = db()->prepare('SELECT id FROM foods WHERE id=? AND is_available=1'); $s->execute([$id]);
         if ($s->fetch()) {
             $cart[$id] = min(20, ($cart[$id] ?? 0) + 1);
-            flash('success', 'Added to cart.');
-        } else flash('danger', 'That dish is not available.');
+            $msg = 'Added to cart.';
+            flash('success', $msg);
+        } else {
+            $msg = 'That dish is not available.';
+            flash('danger', $msg);
+        }
         $_SESSION['cart'] = $cart;
+
+        $isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest')
+            || (isset($_SERVER['HTTP_ACCEPT']) && str_contains($_SERVER['HTTP_ACCEPT'], 'application/json'));
+
+        if ($isAjax) {
+            header('Content-Type: application/json');
+            echo json_encode([
+                'success' => true,
+                'message' => $msg,
+                'cart_count' => cart_count()
+            ]);
+            exit;
+        }
+
+        $returnUrl = trim($_POST['return_url'] ?? '');
+        if (!empty($returnUrl)) {
+            header('Location: ' . $returnUrl);
+            exit;
+        }
+
         $back = $_SERVER['HTTP_REFERER'] ?? '';
-        header('Location: ' . (str_starts_with($back, 'http') && parse_url($back, PHP_URL_HOST) === $_SERVER['HTTP_HOST'] ? $back : url('index.php')));
-        exit;
+        if (!empty($back)) {
+            header('Location: ' . $back);
+            exit;
+        }
+        redirect('index.php');
     }
     if ($action === 'update' && $id > 0) {
         $qty = (int)($_POST['qty'] ?? 1);

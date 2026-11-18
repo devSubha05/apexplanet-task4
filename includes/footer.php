@@ -25,11 +25,12 @@
           </div>
           <div class="d-flex align-items-center gap-3">
             <span id="foodLightboxPrice" class="fs-4 fw-bold text-warning"></span>
-            <form id="foodLightboxCartForm" method="post" action="<?= url('cart.php') ?>">
+            <form id="foodLightboxCartForm" method="post" action="<?= url('cart.php') ?>" class="add-to-cart-form">
               <?= csrf_field() ?>
               <input type="hidden" name="action" value="add">
               <input type="hidden" name="food_id" id="foodLightboxFoodId" value="">
-              <button id="foodLightboxAddBtn" class="btn btn-rx px-4"><i class="bi bi-cart-plus me-1"></i> Add to Cart</button>
+              <input type="hidden" name="return_url" value="<?= e($_SERVER['REQUEST_URI'] ?? url('index.php')) ?>">
+              <button id="foodLightboxAddBtn" class="btn btn-rx px-4 add-to-cart-btn"><i class="bi bi-cart-plus me-1"></i> Add to Cart</button>
             </form>
           </div>
         </div>
