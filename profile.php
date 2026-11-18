@@ -54,7 +54,7 @@ require __DIR__ . '/includes/header.php';
       <div class="mb-3"><label class="form-label" for="name">Full name</label><input class="form-control" id="name" name="name" required minlength="2" maxlength="80" value="<?= e($me['name']) ?>"></div>
       <div class="mb-3"><label class="form-label">Email</label><input class="form-control" value="<?= e($me['email']) ?>" disabled></div>
       <div class="mb-3"><label class="form-label" for="phone">Phone</label><input class="form-control" id="phone" name="phone" required pattern="[0-9]{10}" value="<?= e($me['phone']) ?>"><div class="invalid-feedback">10 digits.</div></div>
-      <div class="mb-3"><label class="form-label" for="address">Default delivery address</label><textarea class="form-control" id="address" name="address" rows="2" maxlength="255"><?= e($me['address']) ?></textarea></div>
+      <div class="mb-3"><label class="form-label" for="address">Default delivery address</label><textarea class="form-control" id="address" name="address" rows="3" maxlength="255" style="overflow-y: hidden; resize: none;"><?= e($me['address']) ?></textarea></div>
       <button class="btn btn-rx">Save profile</button>
     </form>
   </div>
@@ -69,4 +69,17 @@ require __DIR__ . '/includes/header.php';
     </form>
   </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const addr = document.getElementById('address');
+  if (addr) {
+    const resizeAddr = function() {
+      addr.style.height = 'auto';
+      addr.style.height = (addr.scrollHeight + 2) + 'px';
+    };
+    addr.addEventListener('input', resizeAddr);
+    resizeAddr();
+  }
+});
+</script>
 <?php require __DIR__ . '/includes/footer.php'; ?>

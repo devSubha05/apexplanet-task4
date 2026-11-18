@@ -61,6 +61,19 @@ main.main-content{flex:1 0 auto}
   outline: none;
 }
 
+/* Remove vertical scrollbar and resize handle from address textarea */
+#address {
+  overflow-y: hidden !important;
+  resize: none !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+#address::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
 /* Unified Delivery Portal Header & Footer */
 .delivery-nav, .delivery-footer {
   background: var(--rx-dark) !important;
@@ -80,4 +93,76 @@ main.main-content{flex:1 0 auto}
   background: var(--rx-dark) !important;
   color: #e9d9c4 !important;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Offcanvas Mobile Drawer Navigation (Side Slide-in from Right) */
+@media (max-width: 991.98px) {
+  #navbarOffcanvas {
+    background: linear-gradient(180deg, #241411 0%, #130a08 100%) !important;
+    color: #fff !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: -10px 0 35px rgba(0, 0, 0, 0.65) !important;
+    width: 320px !important;
+    max-width: 85vw !important;
+    transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1) !important;
+  }
+  .offcanvas-backdrop.show {
+    backdrop-filter: blur(4px);
+    background-color: rgba(0, 0, 0, 0.65) !important;
+  }
+  #navbarOffcanvas .offcanvas-header {
+    background: rgba(255, 255, 255, 0.04);
+    padding: 1.25rem 1.25rem 1rem;
+  }
+  #navbarOffcanvas .btn-close {
+    opacity: 0.85;
+    transition: transform 0.25s ease, opacity 0.2s ease;
+  }
+  #navbarOffcanvas .btn-close:hover {
+    opacity: 1;
+    transform: rotate(90deg);
+  }
+  #navbarOffcanvas .nav-link {
+    color: rgba(255, 255, 255, 0.86) !important;
+    padding: 0.75rem 1rem !important;
+    border-radius: 0.75rem;
+    font-weight: 500;
+    font-size: 0.96rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.35rem;
+    transition: all 0.2s ease-in-out;
+  }
+  #navbarOffcanvas .nav-link:hover {
+    background: rgba(255, 255, 255, 0.09);
+    color: #fff !important;
+    transform: translateX(4px);
+  }
+  #navbarOffcanvas .nav-link.active,
+  #navbarOffcanvas .nav-link.active.text-warning {
+    background: linear-gradient(135deg, var(--rx-red) 0%, #e63946 100%) !important;
+    color: #fff !important;
+    font-weight: 700;
+    box-shadow: 0 4px 14px rgba(200, 16, 46, 0.45);
+  }
+  #navbarOffcanvas .nav-link.active i {
+    color: #fff !important;
+  }
+  #navbarOffcanvas .dropdown-menu {
+    background: #251614;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 0.75rem;
+    padding: 0.5rem;
+    margin-top: 0.35rem;
+  }
+  #navbarOffcanvas .dropdown-item {
+    color: rgba(255, 255, 255, 0.85);
+    border-radius: 0.5rem;
+    padding: 0.55rem 0.85rem;
+  }
+  #navbarOffcanvas .dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+  }
 }
