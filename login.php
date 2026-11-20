@@ -29,7 +29,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 login_user($u);
                 flash('success', 'Welcome back, ' . ($u['name'] ?? 'user') . '!');
                 
-                // Role-based direct redirection:
                 if ($u['role'] === 'shop_owner') {
                     redirect('shop/index.php');
                 } elseif ($u['role'] === 'delivery') {

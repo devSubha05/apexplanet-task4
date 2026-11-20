@@ -43,7 +43,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([$name, $email, $phone, password_hash($pw, PASSWORD_DEFAULT), $role]);
         $newUserId = (int)db()->lastInsertId();
 
-        // If registered as a shop owner, auto-create their initial shop profile
         if ($role === 'shop_owner') {
             $shopName = $name . "'s Kitchen";
             db()->prepare('INSERT INTO shops (name, description, address, phone, owner_id) VALUES (?, ?, ?, ?, ?)')
@@ -78,13 +77,11 @@ require __DIR__ . '/includes/header.php';
     <form method="post" class="needs-validation" novalidate>
       <?= csrf_field() ?>
 
-      <!-- User Role Section -->
       <div class="mb-3">
         <label class="form-label fw-bold mb-2">
           <i class="bi bi-person-badge me-1 text-danger"></i>Select Your Role
         </label>
         <div class="row g-2">
-          <!-- Customer -->
           <div class="col-12 col-sm-6">
             <input type="radio" class="btn-check" name="role" id="role_user" value="user" <?= ($old['role'] ?? 'user') === 'user' ? 'checked' : '' ?> required>
             <label class="btn w-100 text-start p-2 p-sm-3 role-card" for="role_user">
@@ -100,7 +97,6 @@ require __DIR__ . '/includes/header.php';
             </label>
           </div>
 
-          <!-- Delivery Boy -->
           <div class="col-12 col-sm-6">
             <input type="radio" class="btn-check" name="role" id="role_delivery" value="delivery" <?= ($old['role'] ?? '') === 'delivery' ? 'checked' : '' ?>>
             <label class="btn w-100 text-start p-2 p-sm-3 role-card" for="role_delivery">
@@ -116,7 +112,6 @@ require __DIR__ . '/includes/header.php';
             </label>
           </div>
 
-          <!-- Shop Owner -->
           <div class="col-12 col-sm-6">
             <input type="radio" class="btn-check" name="role" id="role_shop" value="shop_owner" <?= ($old['role'] ?? '') === 'shop_owner' ? 'checked' : '' ?>>
             <label class="btn w-100 text-start p-2 p-sm-3 role-card" for="role_shop">
@@ -132,7 +127,6 @@ require __DIR__ . '/includes/header.php';
             </label>
           </div>
 
-          <!-- Admin -->
           <div class="col-12 col-sm-6">
             <input type="radio" class="btn-check" name="role" id="role_admin" value="admin" <?= ($old['role'] ?? '') === 'admin' ? 'checked' : '' ?>>
             <label class="btn w-100 text-start p-2 p-sm-3 role-card" for="role_admin">

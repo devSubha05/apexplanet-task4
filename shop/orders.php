@@ -113,7 +113,6 @@ $qs = http_build_query(array_filter(['status' => $status, 'q' => $q]));
 $back = $qs . ($page > 1 ? ($qs ? '&' : '') . 'page=' . $page : '');
 $qs = $qs ? $qs . '&' : '';
 
-// Fetch live delivery partners and their active workloads
 $ridersStmt = $pdo->query("SELECT u.id, u.name, u.email, u.phone, u.address, u.avatar,
     COUNT(CASE WHEN o.status IN ('preparing', 'out_for_delivery') THEN o.id END) AS active_deliveries,
     COUNT(CASE WHEN o.status = 'delivered' AND DATE(o.delivered_at) = CURDATE() THEN o.id END) AS delivered_today
@@ -135,7 +134,6 @@ require __DIR__ . '/../includes/header.php';
   <a href="<?= url('shop/index.php') ?>" class="btn btn-outline-secondary btn-sm"><i class="bi bi-speedometer2 me-1"></i> Dashboard</a>
 </div>
 
-<!-- Quick Delivery Boys Availability Widget -->
 <div class="card border-0 shadow-sm mb-3" style="border-radius: 0.8rem; background: #fff8f0; border-left: 4px solid #f7b32b !important;">
   <div class="card-body py-2 px-3">
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">

@@ -28,12 +28,10 @@ if (in_array($payMethod, ['cod', 'upi'], true)) {
 
 $whereClause = implode(' AND ', $where);
 
-// Count total matching
 $countStmt = $pdo->prepare("SELECT COUNT(*) FROM orders o JOIN users u ON u.id = o.user_id WHERE $whereClause");
 $countStmt->execute($args);
 $total = (int)$countStmt->fetchColumn();
 
-// Fetch orders
 $stmt = $pdo->prepare("SELECT o.*, u.name AS customer_name, u.email AS customer_email
     FROM orders o
     JOIN users u ON u.id = o.user_id
@@ -43,7 +41,6 @@ $stmt = $pdo->prepare("SELECT o.*, u.name AS customer_name, u.email AS customer_
 $stmt->execute($args);
 $orders = $stmt->fetchAll();
 
-// Stats
 $totalDelivered = (int)$pdo->query("SELECT COUNT(*) FROM orders WHERE delivery_boy_id = {$me['id']} AND status = 'delivered'")->fetchColumn();
 $todayDelivered = (int)$pdo->query("SELECT COUNT(*) FROM orders WHERE delivery_boy_id = {$me['id']} AND status = 'delivered' AND DATE(delivered_at) = CURDATE()")->fetchColumn();
 $todayCodCash = (float)$pdo->query("SELECT COALESCE(SUM(total), 0) FROM orders WHERE delivery_boy_id = {$me['id']} AND status = 'delivered' AND payment_method = 'cod' AND DATE(delivered_at) = CURDATE()")->fetchColumn();
@@ -66,7 +63,6 @@ require __DIR__ . '/../includes/header.php';
   </div>
 </div>
 
-<!-- Stats Summary Row -->
 <div class="row g-3 mb-4">
   <div class="col-6 col-md-3">
     <div class="card stat-card shadow-sm h-100" style="border-left-color: #198754;">
@@ -106,7 +102,6 @@ require __DIR__ . '/../includes/header.php';
   </div>
 </div>
 
-<!-- Filter Bar -->
 <div class="card border-0 shadow-sm mb-4">
   <div class="card-body p-3">
     <form class="row g-2 align-items-center" method="get">
@@ -133,7 +128,6 @@ require __DIR__ . '/../includes/header.php';
   </div>
 </div>
 
-<!-- History Table -->
 <div class="card border-0 shadow-sm overflow-hidden" style="border-radius: 1rem;">
   <div class="table-responsive">
     <table class="table table-hover align-middle mb-0">

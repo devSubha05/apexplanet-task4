@@ -103,7 +103,6 @@ LIMIT 20");
 $ordersQuery->execute($args);
 $orders = $ordersQuery->fetchAll();
 
-// Fetch live delivery partners and their active workloads
 $ridersStmt = $pdo->query("SELECT u.id, u.name, u.email, u.phone, u.address, u.avatar,
     COUNT(CASE WHEN o.status IN ('preparing', 'out_for_delivery') THEN o.id END) AS active_deliveries,
     COUNT(CASE WHEN o.status = 'delivered' AND DATE(o.delivered_at) = CURDATE() THEN o.id END) AS delivered_today
@@ -225,7 +224,6 @@ require __DIR__ . '/../includes/header.php';
   </div>
 <?php endif; ?>
 
-<!-- Live Available Delivery Boys Section -->
 <div class="card border-0 shadow-sm mb-4" style="border-radius: 0.9rem; overflow: hidden;">
   <div class="card-header bg-white py-3 border-0 d-flex flex-wrap justify-content-between align-items-center gap-2">
     <div>

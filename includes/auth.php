@@ -118,13 +118,11 @@ function paginate(int $total, int $page, int $per, string $baseQuery = ''): stri
 
     $h = '<nav aria-label="Page navigation"><ul class="pagination justify-content-center flex-wrap shadow-sm rounded-pill d-inline-flex border">';
 
-    // Previous Arrow (shown when on page > 1)
     if ($page > 1) {
         $prev = $page - 1;
         $h .= '<li class="page-item"><a class="page-link" href="?' . $baseQuery . 'page=' . $prev . '" aria-label="Previous" title="Previous page"><span aria-hidden="true">&laquo;</span></a></li>';
     }
 
-    // Determine window: show 1, 2, 3 on first pages then slide as user moves forward
     if ($pages <= 3) {
         $start = 1;
         $end = $pages;

@@ -14,7 +14,6 @@
   <div class="container">
     <a class="navbar-brand fw-bold" href="<?= url($isAdminArea ? 'admin/index.php' : ($isShopArea ? 'shop/index.php' : ($isDeliveryArea ? 'delivery/index.php' : 'index.php'))) ?>"><i class="bi bi-egg-fried me-1"></i><?= APP_NAME ?><?= $isAdminArea ? ' <small class="opacity-75">Admin</small>' : ($isShopArea ? ' <small class="opacity-75">Shop Portal</small>' : ($isDeliveryArea ? ' <small class="opacity-75 text-warning"><i class="bi bi-bicycle me-1"></i>Delivery Portal</small>' : '')) ?></a>
 
-    <!-- Mini Screen Right Actions: Cart & Hamburger Toggle -->
     <div class="d-flex align-items-center gap-2 d-lg-none">
       <?php if (!$isAdminArea && !$isShopArea && !$isDeliveryArea): ?>
         <a class="btn btn-sm btn-outline-light position-relative px-2 py-1" href="<?= url('cart.php') ?>" title="View Cart">
@@ -27,7 +26,6 @@
       </button>
     </div>
 
-    <!-- Offcanvas Mobile Drawer / Desktop Navbar -->
     <div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="navbarOffcanvas" aria-labelledby="navbarOffcanvasLabel">
       <div class="offcanvas-header border-bottom border-white border-opacity-10 d-lg-none">
         <h5 class="offcanvas-title fw-bold text-white d-flex align-items-center mb-0" id="navbarOffcanvasLabel">

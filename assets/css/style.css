@@ -61,7 +61,6 @@ main.main-content{flex:1 0 auto}
   outline: none;
 }
 
-/* Remove vertical scrollbar and resize handle from address textarea */
 #address {
   overflow-y: hidden !important;
   resize: none !important;
@@ -74,7 +73,6 @@ main.main-content{flex:1 0 auto}
   height: 0 !important;
 }
 
-/* Unified Delivery Portal Header & Footer */
 .delivery-nav, .delivery-footer {
   background: var(--rx-dark) !important;
   color: #fff !important;
@@ -95,7 +93,6 @@ main.main-content{flex:1 0 auto}
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* Offcanvas Mobile Drawer Navigation (Side Slide-in from Right) */
 @media (max-width: 991.98px) {
   #navbarOffcanvas {
     background: linear-gradient(180deg, #241411 0%, #130a08 100%) !important;

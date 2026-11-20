@@ -5,7 +5,6 @@ $deliveryArea = true;
 $pageTitle = 'Available Orders to Claim';
 $pdo = db();
 
-// Handle claim action
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_check();
     $action = $_POST['action'] ?? '';
@@ -19,7 +18,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Fetch unassigned orders waiting for pickup
 $stmt = $pdo->prepare("SELECT o.*, u.name AS customer_name, u.email AS customer_email
     FROM orders o
     JOIN users u ON u.id = o.user_id
@@ -28,7 +26,6 @@ $stmt = $pdo->prepare("SELECT o.*, u.name AS customer_name, u.email AS customer_
 $stmt->execute();
 $orders = $stmt->fetchAll();
 
-// Fetch items for displayed orders
 $itemsByOrder = [];
 if (!empty($orders)) {
     $ids = array_column($orders, 'id');
@@ -93,7 +90,6 @@ require __DIR__ . '/../includes/header.php';
         </div>
 
         <div class="card-body p-4 d-flex flex-column">
-          <!-- Pickup Kitchen Info -->
           <div class="p-3 mb-3 rounded" style="background: #fff8f0; border-left: 4px solid #f7b32b;">
             <div class="d-flex justify-content-between align-items-center mb-1">
               <span class="badge bg-warning text-dark"><i class="bi bi-shop me-1"></i>PICKUP FROM</span>
@@ -103,7 +99,6 @@ require __DIR__ . '/../includes/header.php';
             <small class="text-muted"><i class="bi bi-geo-alt me-1"></i><?= e($shopAddress) ?></small>
           </div>
 
-          <!-- Customer Dropoff Info -->
           <div class="p-3 mb-3 rounded" style="background: #f0f7ff; border-left: 4px solid #0d6efd;">
             <span class="badge bg-primary mb-1"><i class="bi bi-house-door me-1"></i>DELIVER TO AREA</span>
             <strong class="d-block text-dark fs-6"><?= e($o['customer_name']) ?></strong>
@@ -113,7 +108,6 @@ require __DIR__ . '/../includes/header.php';
             <?php endif; ?>
           </div>
 
-          <!-- Items in Order -->
           <div class="mb-3">
             <span class="text-muted small fw-bold text-uppercase d-block mb-1">Order Summary:</span>
             <ul class="list-group list-group-flush border-top border-bottom small">
@@ -126,7 +120,6 @@ require __DIR__ . '/../includes/header.php';
             </ul>
           </div>
 
-          <!-- Payment Banner -->
           <div class="d-flex justify-content-between align-items-center p-3 mb-3 rounded <?= $o['payment_method'] === 'cod' ? 'bg-danger bg-opacity-10 border border-danger' : 'bg-success bg-opacity-10 border border-success' ?>">
             <div>
               <small class="text-muted d-block">Payment Method</small>
@@ -142,7 +135,6 @@ require __DIR__ . '/../includes/header.php';
             </div>
           </div>
 
-          <!-- Claim Button -->
           <div class="mt-auto pt-2">
             <form method="post" class="d-grid">
               <?= csrf_field() ?>

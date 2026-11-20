@@ -5,7 +5,6 @@ $deliveryArea = true;
 $pageTitle = 'Active Tasks & Deliveries';
 $pdo = db();
 
-// Handle status and assignment actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_check();
     $action = $_POST['action'] ?? '';
@@ -29,7 +28,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Fetch active assigned orders
 $stmt = $pdo->prepare("SELECT o.*, u.name AS customer_name, u.email AS customer_email
     FROM orders o
     JOIN users u ON u.id = o.user_id
@@ -38,7 +36,6 @@ $stmt = $pdo->prepare("SELECT o.*, u.name AS customer_name, u.email AS customer_
 $stmt->execute([$me['id']]);
 $orders = $stmt->fetchAll();
 
-// Fetch items for displayed orders
 $itemsByOrder = [];
 if (!empty($orders)) {
     $ids = array_column($orders, 'id');

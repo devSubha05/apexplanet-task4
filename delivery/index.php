@@ -5,7 +5,6 @@ $deliveryArea = true;
 $pageTitle = 'Delivery Dashboard';
 $pdo = db();
 
-// Handle quick actions from dashboard
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_check();
     $action = $_POST['action'] ?? '';
@@ -29,27 +28,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Stats for delivery partner
 $activeCount = (int)$pdo->query("SELECT COUNT(*) FROM orders WHERE delivery_boy_id = {$me['id']} AND status IN ('preparing', 'out_for_delivery')")->fetchColumn();
 $availableCount = (int)$pdo->query("SELECT COUNT(*) FROM orders WHERE delivery_boy_id IS NULL AND status IN ('pending', 'preparing')")->fetchColumn();
 $completedCount = (int)$pdo->query("SELECT COUNT(*) FROM orders WHERE delivery_boy_id = {$me['id']} AND status = 'delivered'")->fetchColumn();
 $todayCodCash = (float)$pdo->query("SELECT COALESCE(SUM(total), 0) FROM orders WHERE delivery_boy_id = {$me['id']} AND status = 'delivered' AND payment_method = 'cod' AND DATE(delivered_at) = CURDATE()")->fetchColumn();
 
-// Fetch up to 4 active tasks for quick view
 $activeOrders = $pdo->query("SELECT o.*, u.name AS customer_name, u.email AS customer_email
     FROM orders o
     JOIN users u ON u.id = o.user_id
     WHERE o.delivery_boy_id = {$me['id']} AND o.status IN ('preparing', 'out_for_delivery')
     ORDER BY o.id ASC LIMIT 4")->fetchAll();
 
-// Fetch up to 4 available orders for quick claim
 $availableOrders = $pdo->query("SELECT o.*, u.name AS customer_name, u.email AS customer_email
     FROM orders o
     JOIN users u ON u.id = o.user_id
     WHERE o.delivery_boy_id IS NULL AND o.status IN ('pending', 'preparing')
     ORDER BY o.id ASC LIMIT 4")->fetchAll();
 
-// Fetch shop info for active orders
 $activeOrderIds = array_column($activeOrders, 'id');
 $itemsByOrder = [];
 if (!empty($activeOrderIds)) {
@@ -68,7 +63,6 @@ if (!empty($activeOrderIds)) {
 require __DIR__ . '/../includes/header.php';
 ?>
 
-<!-- Partner Header Card -->
 <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #2b1b17 0%, #4a1f18 100%); color: #fff; border-radius: 1rem;">
   <div class="card-body p-4">
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
@@ -92,7 +86,6 @@ require __DIR__ . '/../includes/header.php';
   </div>
 </div>
 
-<!-- 4 Navigation KPI Cards (Linking directly to separate dedicated pages) -->
 <div class="row g-3 mb-4">
   <div class="col-6 col-lg-3">
     <a href="<?= url('delivery/active_tasks.php') ?>" class="text-decoration-none">
@@ -164,7 +157,6 @@ require __DIR__ . '/../includes/header.php';
   </div>
 </div>
 
-<!-- Section 1: Active Tasks Quick Overview -->
 <div class="card border-0 shadow-sm mb-4" style="border-radius: 1rem;">
   <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
     <div>
@@ -224,7 +216,6 @@ require __DIR__ . '/../includes/header.php';
   </div>
 </div>
 
-<!-- Section 2: Available Orders Quick Claim -->
 <div class="card border-0 shadow-sm mb-4" style="border-radius: 1rem;">
   <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
     <div>
